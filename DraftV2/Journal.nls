@@ -1,0 +1,140 @@
+\begin{thenomenclature} 
+
+ \nomgroup{A}
+
+\item [{\textbf{Indices}}]\begingroup \nomeqref {0}
+		\nompageref{1}
+ \item [{$t$}]\begingroup a time period (time interval from the beginning through the end of a period)\nomeqref {0}\nompageref{2}
+ \item [{$g$}]\begingroup TS network generator index\nomeqref {0}\nompageref{2}
+		
+ \item [{\textbf{Parameters}}]\begingroup \nomeqref {0}
+		\nompageref{1}
+  \item [{$T$}]\begingroup length of the planning horizon\nomeqref {0}\nompageref{2}
+  \item [{$G$}]\begingroup total number of generators in the TS\nomeqref {0}\nompageref{2}
+  \item [{$\overline{R}_g$}]\begingroup TS generator upper ramp rate limit \nomeqref {0}
+		\nompageref{2}
+  \item [{$\underline{R}_g$}]\begingroup TS generator lower ramp rate limit \nomeqref {0}
+		\nompageref{2}
+  \item [{$\overline{P}_g$}]\begingroup TS generator generation upper bound \nomeqref {0}
+		\nompageref{2}
+  \item [{$\underline{P}_g$}]\begingroup TS generator generation lower bound \nomeqref {0}
+		\nompageref{2}
+  \item [{$Line$}]\begingroup TS line limit \nomeqref {0}
+		\nompageref{2}
+  \item [{$C_g$}]\begingroup TS generater g cost\nomeqref {0}
+		\nompageref{1}		
+  \item [{$C^r_{g}$}]\begingroup TS generater g reserve cost\nomeqref {0}
+		\nompageref{1}		
+  \item [{$C^c_{g}$}]\begingroup TS generator g commitment cost\nomeqref {0}
+		\nompageref{1}
+  \item [{$GSF$}]\begingroup TS generation shift factor matrix\nomeqref {0}
+		\nompageref{1}
+ \item [{$W^f$}]\begingroup forecasted wind power \nomeqref {0}
+		\nompageref{2}		
+  \item [{$W^{up}$}]\begingroup positive wind deviation from the forecast\nomeqref {0}
+		\nompageref{1}
+  \item [{$W^{dn}$}]\begingroup negative wind deviation from the forecast\nomeqref {0}
+		\nompageref{1}
+  \item [{$N_b$}]\begingroup number of buses in the TS\nomeqref {0}
+		\nompageref{1}
+  \item [{$L_{t}$}]\begingroup TS load power vector in hour t\nomeqref {0}
+		\nompageref{2}
+		
+  \item [{$\underline{L}^d_{t}$}]\begingroup MG aggregated dispatchable load lower bound in hour t\nomeqref {0}
+		\nompageref{1}		
+  \item [{$\overline{L}^d_{t}$}]\begingroup MG aggregated dispatchable load upper bound in hour t\nomeqref {0}
+		\nompageref{1}	
+  \item [{$ L^i_{t}$}]\begingroup MG inelastic load in time t\nomeqref {0}
+		\nompageref{1}
+  \item [{$\overline{B}$}]\begingroup MG storage energy state max level\nomeqref {0}
+		\nompageref{1}
+  \item [{$\underline{B}$}]\begingroup MG storage energy state min level\nomeqref {0}
+		\nompageref{1}
+  \item [{$C^b$}]\begingroup MG storage energy maintenance cost\nomeqref {0}
+		\nompageref{1}
+  \item [{$C^{m1}_t$}]\begingroup MG generation linear cost\nomeqref {0}
+		\nompageref{1}
+  \item [{$C^{m2}_t$}]\begingroup MG generation quadratic cost\nomeqref {0}
+		\nompageref{1}
+  \item [{$C^d_t$}]\begingroup MG utility for consuming dispatchable load in the MG in hour t\nomeqref {0}
+		\nompageref{1}
+  \item [{$C^{dr1}$}]\begingroup MG linear demand response cost\nomeqref {0}
+		\nompageref{1}
+  \item [{$C^{dr2}$}]\begingroup MG quadratic demand response cost\nomeqref {0}
+		\nompageref{1}
+  \item [{$\overline P^m$}]\begingroup MG generation upper bound\nomeqref {0}
+		\nompageref{1}
+  \item [{$\underline P^m$}]\begingroup MG generation lower bound\nomeqref {0}
+		\nompageref{1}
+  \item [{$\underline P^b$}]\begingroup MG storage discharging limit\nomeqref {0}
+		\nompageref{1}
+  \item [{$\overline P^b$}]\begingroup MG storage charging limit\nomeqref {0}
+		\nompageref{1}
+  \item [{$\overline P^d_t$}]\begingroup DR lower price cap in period t\nomeqref {0}
+		\nompageref{1}
+
+
+
+
+
+  \item [{$\epsilon$}]\begingroup constraint violation probability\nomeqref {0}
+		\nompageref{2}
+
+%  \item [{$C^s_{g}$}]\begingroup  TSgenerator start-up cost for generator g\nomeqref {0}
+%		\nompageref{1}
+										
+  \item [{\textbf{Variables}}]\begingroup \nomeqref {0}
+		\nompageref{1}
+  \item [{$r_{g,t}^{up}$}]\begingroup TS generator g upward reserve  in hour t\nomeqref {0}
+		\nompageref{2}
+ \item [{$r_{g,t}^{dn}$}]\begingroup TS generator g downward reserve  in hour t\nomeqref {0}
+		\nompageref{2}
+ \item [{$p^{dr}_{t}$}]\begingroup demand response price  in hour t\nomeqref {0}
+		\nompageref{2}
+  \item [{$p_{g,t}$}]\begingroup TS generator g generation  in hour t \nomeqref {0}
+		\nompageref{2}
+  \item [{$b_{t}$}]\begingroup MG storage energy state in hour t  \nomeqref {0}
+		\nompageref{1}
+  \item [{$p^{ex}_{t}$}]\begingroup MG exported power in hour t \nomeqref {0}
+		\nompageref{1}
+  \item [{$p^{im}_{t}$}]\begingroup MG imported power in hour t \nomeqref {0}
+		\nompageref{1}
+  \item [{$p^b_{t}$}]\begingroup MG storage power output in hour t \nomeqref {0}
+		\nompageref{1}
+  \item [{$l^d_{t}$}]\begingroup MG aggregated dispatchable load in hour t\nomeqref {0}
+		\nompageref{1}
+  \item [{$dr_{t}^{up}$}]\begingroup MG storage power output in hour t \nomeqref {0}
+		\nompageref{1}
+  \item [{$dr_{t}^{dn}$}]\begingroup MG aggregated dispatchable load in hour t\nomeqref {0}
+		\nompageref{1}
+  \item [{$p^{inj}_{t}$}]\begingroup bus power injection vector in hour t\nomeqref {0}
+		\nompageref{2}
+
+  \item [{$w_{g,t}$}]\begingroup TS generator commitment variable in hour t for generator g\nomeqref {0}
+		\nompageref{1}
+%  \item [{$z_{g,t}$}]\begingroup  TS generator start-up variable in hour t for generator g\nomeqref {0}
+%		\nompageref{1}
+
+\item [{\textbf{Acronyms}}]\begingroup \nomeqref {0}
+		\nompageref{1}
+\item [{TS}]\begingroup transmission system\nomeqref {0}
+		\nompageref{2}
+\item [{DL}]\begingroup dispatchable load\nomeqref {0}
+		\nompageref{2}
+\item [{WP}]\begingroup wind penetration\nomeqref {0}
+		\nompageref{2}
+\item [{MG}]\begingroup microgrid\nomeqref {0}
+		\nompageref{2}
+\item [{DR}]\begingroup demand response\nomeqref {0}
+		\nompageref{2}
+\item [{DG}]\begingroup distributed generation\nomeqref {0}
+		\nompageref{2}
+
+
+
+		
+
+
+
+
+\end{thenomenclature}

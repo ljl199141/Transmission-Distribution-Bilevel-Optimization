@@ -1,0 +1,284 @@
+%!TEX root = Journal.tex
+In this section, the structure of the bi-level optimization problem is described. The general formulation of a bilevel optimization is given below:
+%\begin{subequations}
+\begin{align}
+\begin{aligned}
+&\argminC_{x\in X, y\in Y}F\left(x,y\right) \\
+\text{st:   }  & G_i\left(x,y\right)\leq 0, \text{for   }  i \in \{1,2,...,I\}\label{prime}\\
+& H_k\left(x,y\right) = 0, \text{for   }  k \in \{1,2,...,K\}\\
+& y\in \argminB_{y\in Y} \{f(x,y): g_j(x,y)\leq 0, \text{for   }  j \in \{1,2,...,J\}, \\ 
+                                                   &h_m(x,y) = 0, \text{for   }  m \in \{1,2,...,M\}  \}
+\end{aligned}
+\end{align}
+%\end{subequations}
+
+%\begin{align}
+%\begin{aligned}
+%& p_g^t \leq p_g^{t-1} + RU_g u_g^{t-1} +\overline{FU}_g (1-u_g^{t-1}), \\
+%& p_g^{t-1} \leq p_g^t  + RD_g u_g^t + \overline{LU}_g (1-u_g^{t}).\\
+%&\argminC_{x\in X, y\in Y}F\left(x,y\right)  \\
+%\text{st:   }  & G_i\left(x,y\right)\leq 0, \text{for   }  i \in \{1,2,...,I\}\\
+%& H_k\left(x,y\right) = 0, \text{for   }  k \in \{1,2,...,K\}\\
+%& y\in \argminB_{y\in Y} \{f(x,y): g_j(x,y)\leq 0, \text{for   }  j \in \{1,2,...,J\}, \\ 
+%                                                   &h_m(x,y) = 0, \text{for   }  m \in \{1,2,...,M\}  \}
+%\end{aligned}
+%\end{align}
+
+In the above formulation, $x,F(x,y),(G_i, H_k)$ are the optimization variables, objective function and constraints of the upper level problem. Whereas, $y,f(x,y),(g_i,h_m)$ are the optimization variables, objective function and constraints of the lower level problem. According to this formulation, the bilevel formulation of the TS and MG co-optimization is given in the following sections. 
+
+\subsection{Upper Level Problem: TS Unit Commitment Problem}
+%The day-ahead unit commitment model here is based on the stochastic optimal power flow model developed in \cite{Vrakopoulou:2015gb,li:2015wh}, with the following modification: binary commitment variables and generator ramping limits are added to the economic dispatch problem in \cite{Vrakopoulou:2015gb,li:2015wh} to include the unit commitment problem in the framework. 
+%In this study, we try to increase the renewable penetration level (eg: wind) in the TS to cater the renewable energy penetration requirement for the near future. The uncertainty introduced by the renewable forecast needs to be compensated by the TS generator's reserve as well as the DR from the MG. 
+
+The upper level transmission day-ahead unit commitment problem seeks to compute the optimal operation schedule including the generator commitment status $w_{g,t}$, generation output $p_{g,t}$, upward and downward generator's reserve $R^{up}_{g,t}$, $R^{dn}_{g,t}$, MG DR price $P^{dr}_{g,t}$, and the MG energy import and export price $c^{im}_{t}, c^{ex}_{t}$ to minimize the total TS operation cost. The optimization variables are denoted by the vector $x_t$, and include:
+\begin{align*}
+x_t=[&w_{g,t}, p_{g,t}, r_{g,t}^{up}, r_{g,t}^{dn}, p^{dr}_{t}, c^{im}_{t} , c^{ex}_{t}]
+\end{align*}
+The objective of the upper level optimization problem is to minimize the TS operation cost including the generator commitment cost, generation cost, reserve cost, energy exchange cost with the MG and the MG DR cost. \\
+\textbf{\emph{Objective function:} }
+\begin{equation*}
+\begin{array}{lcl}
+F(\{x_t\}^{T}_{t=1}) &=& \sum_{t=1}^{T}\sum_{g=1}^{G}(C^c_{g,t} w_{g,t}+C_{g,t} p_{g,t}+C^r_{g}(r_{g,t}^{up}+r_{g,t}^{dn})\\
+%F(\{x_t\}^{T}_{t=1}) &=& \sum_{t=1}^{T}\sum_{g=1}^{G}(C_{g,t} p_{g,t}+C^r_{g}(r_{g,t}^{up}+r_{g,t}^{dn})\\
+&-&p^{im}_{t}c^{im}_{t}+p^{ex}_{t}c^{ex}_{t}\\
+&+&p^{dr}_{t}(dr_{t}^{up}+dr_{t}^{dn}))
+\end{array}
+\label{eqn:obj}
+\end{equation*}
+
+The constraints of the TS are listed below. \\
+\textbf{\emph{Power flow constraints:} }
+\begin{align}
+&-Line\leq GSF*pinj_{t}\leq Line, t\in{1,...,T}\label{eqn:1}\\
+&-Line\leq GSF*pinj_{t}^*\leq Line, t\in{1,...,T}\label{eqn:2}
+\end{align}
+
+$p_{inj,t}$ is the DC net power injection vector (ie: generation + wind - demand) for all the buses in each hour. $p_{inj,t}^*$ incorporates the wind forecast error, generator reserve and MG DR on top of $p_{inj,t}$. Eqn (\ref{eqn:1}),(\ref{eqn:2})  bound the transmission line flows within the flow limits. 
+ 
+\textbf{\emph{Generator constraints:} }
+\begin{align}
+%& P_g^- w_{g,t} \leq p_{g,t}\leq  P_g^+ w_{g,t}\label{eqn:dtpg}\\
+& \underline{P}_g\leq p_{g,t}\leq  \overline{P}_g,  t\in{1,...,T}\label{eqn:dtpg}\\
+& (p_{g,t} +r_{g,t}^{up})  - (p_{g,t-1}-  r_{g,t-1}^{dn}) \leq \overline{R}_g ,  t\in{2,...,T}\label{eq: sec3} \\
+&  \underline{R}_{g} \leq (p_{g,t} -  r_{g,t}^{dn})  - (p_{g,t-1}+ r_{g,t-1}^{up}) , t\in{2,...,T}\label{eq: sec4} 
+%& Z_{g,t}= w_{g,t}-W_{g,t-1} \\
+%&\sum^{t}_{q=t-UT_g+1}z_{g,q}\leq w_{g,t-1}, \quad \text{if } UT_g\leq t\\
+%&\sum^{t+DT_g}_{q=t+1}z_{g,q}\leq 1-w_{g,t-1}, \quad \text{if } |T|-DT_g\leq t
+\end{align}
+%$UT_g$ and $DT_g$ are the minimum up and down time of the generators; $P_g^-$ and $P_g^+$ are the generator generation limits; and $\underline{R}_{g}$ and $\overline{R}_{g}$ are the generator ramp rate limits. 
+Eqn (\ref{eqn:dtpg}) bounds the generator generation within its capacities. Eqn (\ref{eq: sec3}),(\ref{eq: sec4}) satisfy the generator ramping capability. 
+
+\textbf{\emph{Power balance constraint:} }
+\begin{align}
+\sum_{g=1}^{G} p_{g,t} + \mathbf{1}_{1\times N_b}*L_{t} + W^f = P^{im}_t-P^{ex}_t, ,  t\in{1,...,T}\label{eq: sec5} 
+\end{align}
+where $\mathbf{1}_{1\times N_b}$ is a vector of length $N_b$ filled with 1's. The dot product $\mathbf{1}_{1\times N_b}*L_{t}$ gives the total load in the system. Eqn (\ref{eq: sec5}) balances the system power supply and demand. 
+
+\textbf{\emph{Reserve constraints:} }
+%\begin{equation}
+%\begin{array}{lcl}
+\begin{align}
+W^{up}_t \leq DR^{up}_t + \sum_{g=1}^{G} r_{g,t}^{dn}, t\in{1,...,T} \label{xx} \\
+W^{dn}_t \leq Dr^{dn}_t + \sum_{g=1}^{G} r_{g,t}^{up}, t\in{1,...,T} \label{eq: sec7} 
+\end{align}
+%\end{array}
+%\end{equation}
+%$W_t^{up}$ is the deviation between the wind forecast and the scenario with the largest wind generation, and could be compensated by less generation of the transmission generators (ie: $r^{dn}_t$) or more consumption of the MG dispachable load (ie: $DR^{up}_t$). $W_t^{dn}$ is the deviation between the wind forecast and the scenario with the smallest wind generation, and could be compensated by more generation of the transmission generators (ie: $R^{up}_t$) or less consumption of the MG dispachable load (ie: $Dr^{dn}_t$). 
+Eqn (\ref{xx}), (\ref{eq: sec7}) ensure enough generator reserve and MG DR to compensate the possible wind forecast deviation. 
+
+%\textbf{\emph{DR price constraint:} }
+%\begin{equation}
+%\begin{array}{lcl}
+%P^{dr}_t >= P^d_t, t\in{1,...,T} \label{eq: sec8}
+%\end{array}
+%\end{equation}
+%%Since the consumption of MG dispatchable load (to be discussed in the MG model) is valued with some utility. The MG DR provided by the dispatchable load has to get paid by a price greater than the utility, which is reflected by Eqn (\ref{eq: sec8}). 
+%As demand response could change the original demand profile and consequently cause some inconvenience to the consumers, a penalty term could be used as a lower price cap for the DR to account for that, which is reflected by Eqn (\ref{eq: sec8}). 
+%The MG operator is able to quantify the cost of demand response or submit a bid for demand response and sentSince the consumption of MG dispatchable load (to be discussed in the MG model) is valued with some utility. The MG DR provided by the dispatchable load has to get paid by a price greater than the utility, which is reflected by Eqn (\ref{eq: sec8}). 
+
+Finally, the TS unit commitment problem is formulated as: 
+\begin{subequations}
+\begin{align}
+\text{min}_{\{x_t\}^{T}_{t=1}} & F\left(\{x_t\}^{T}_{t=1}\right)\nonumber\\
+\text{s.t.   } & (1)-(10)\nonumber\\
+%& \quad \Prob((2),(4),(5),(7),(8)) \geq 1-\epsilon  \nonumber
+\end{align}
+\end{subequations}
+%A chance-constrained approach is applied here for the stochastic equations (2,4,5,7,8) as \cite{liu2016comparison} shows that a chance-constrained approach strikes a good balance between the system cost, reliability and wind penetration. The chance constraints in this study are required to meet the
+%specified probability level 1 - $\epsilon$ jointly. It is also possible
+%to write individual chance constraints, where each
+%constraint $i$ is required to meet a specified probability level
+%1 -  $\epsilon_i$ individually. In the latter case, different $i$ can be
+%selected for each constraint allowing critical constraints or
+%time periods to be managed in a robust way, with increased
+%flexibility elsewhere. Interested readers could refer to \cite{liu2016comparison} for a detailed explanation of the chance-constrained approach.
+
+%The introduction of binary commitment variables in this formulation is handled through a first-stage deterministic optimization for commitments based on wind forecasts, and the stochasticity of forecast errors are managed in the second stage of the CC-OPF with reserves. 
+\subsection{Lower Level Problem: MG Operation Optimization}
+A comprehensive MG is considered in this work. The MG consists of distributed generation (DG), a storage unit, aggregated dispatchable and non-dispatchable loads, and is able to exchange power with the main grid. 
+
+%Since a MG typically covers a small local area with very limited power capacity, it thus has very limited influence in the setting of the market price, it is assumed that the MG is a price taker in the problem formulation. 
+
+The goal of the MG optimal dispatch model is to compute the generation schedule $p^m_{g,t}$ , the battery power output $p^b_{t}$, the battery charging and discharging decision $p^b_t$, MG energy import $p^{im}_{t}$ and export $p^{ex}_{t}$ schedule, dispatchable load profile $l^d_{t}$, the upward/downward  DR $dr_{t}^{up}$, $dr_{t}^{dn}$ provided by the dispachable load, and the storage energy state $b_t$. The lower level optimization variables are denoted by the vector $y_t$, and include:
+\begin{align*}
+y_t=[&p^m_{g,t}, p^b_{t}, p^{im}_{t}, p^{ex}_{t},dr_{t}^{up},dr_{t}^{dn},l^d_{t}, b_t]
+\end{align*} 
+
+The objective of the MG optimization is to minimize the MG operation cost including its generation cost, battery maintenance cost, energy exchange cost with the TS, and DR cost and maximize its dispatchable load utility and DR revenue.
+
+\textbf{\emph{Objective function:} }
+\begin{align*}
+f(\{y_t\}^{T}_{t=1}) =& \sum_{t=1}^{T}(C^{m1}_g p^m_{g,t} +C^{m2}_g p^m_{g,t}  p^m_{g,t} +C^bb_t+p^{im}_{t}c^{im}_{t}-p^{ex}_{t}c^{ex}_{t}\\
++ &C^{dr1} (DR^{up}_{g,t} + DR^{dn}_{g,t} ) + C^{dr2} (DR^{up}_{g,t}DR^{up}_{g,t} + DR^{dn}_{g,t}DR^{dn}_{g,t}  ) \\
+- &C^d_{t}l^d_{t}-p^{dr}_{t}(dr_{t}^{up}+dr_{t}^{dn}))
+\end{align*}
+
+The constraints for the MG are given below. The $\lambda$ and $\mu$ variables next to the constraints are the dual variables associated with the corresponding inequality and equality constraints.
+
+\textbf{\emph{Generator constraints:} }
+\begin{align}
+&\underline P^m\leq p^m_{g,t}\leq  \overline P^m\label{genlim}, \lambda_{1,t},\lambda_{2,t},t\in{1,...,T} 
+\end{align}
+Eq (\ref{genlim}) limits the generator's output within the upper and lower bound.\\
+
+\textbf{\emph{Dispatchable load constraint:} }
+\begin{align}
+&\underline{L}^d_{t}\leq l^d_{t}\leq \overline{L}^d_{t}\label{dl}, \lambda_{3,t},\lambda_{4,t},t\in{1,...,T} 
+\end{align} 
+Eq (\ref{dl}) constrains the dispatchable loads within predefined bounds. 
+%The room between the dispatchable load set point and the bounds could be used as DR to compensate for wind forecast errors.
+
+\textbf{\emph{DR constraints:} }
+\begin{align}
+&l^d_{t}+dr_{t}^{up}\leq \overline{L}^d_{t}, \lambda_{5,t},t\in{1,...,T} \label{dlu}\\
+&l^d_{t}-dr_{t}^{dn}\geq \underline{L}^d_{t},\lambda_{6,t},t\in{1,...,T} \label{dld} \\
+&0\leq dr_{t}^{up}\leq W^{up}, \lambda_{7,t},\lambda_{8,t},t\in{1,...,T} \label{dlu1}\\
+&0\leq dr_{t}^{dn}\leq W^{dn}, \lambda_{9,t},\lambda_{10,t}t\in{1,...,T} \label{dlu2}
+\end{align} 
+Eq (\ref{dlu}), (\ref{dld}) limit the DR of dispatchable load within the dispatachable load bounds. Also the amount of DR could not exceed the wind forecast deviation, which is reflected in Eq (\ref{dlu1}), (\ref{dlu2}).
+
+\textbf{\emph{Storage constraints:} }
+\begin{align}
+&\underline P^b\leq  p^b_{t}\leq  \overline P^b \label{3},  \lambda_{11,t}\lambda_{12,t}, t\in{1,...,T}  \\
+&\underline B\leq  b_{t}\leq  \overline B\label{4}, \lambda_{13,t},\lambda_{14,t}, t\in{1,...,T} \\
+&b_{t}=B_{t-1}+p^b_{t-1}, \mu_{1,t}, t\in{1,...,T}  \label{5}
+\end{align}
+Eq (\ref{3}) and (\ref{4}) restrict the storage's output power and the energy state to their upper and lower bounds. Equation (\ref{5}) shows the transition of the storage energy state from one period to the next. A positive/negative $p^b_{t}$ value corresponds to charging/discharging of the battery.
+
+\textbf{\emph{Import and Export constraints:} }
+\begin{align}
+& 0 \leq  p^{im}_t, \lambda_{15,t}, t\in{1,...,T} \label{dlu3}\\
+& 0 \leq p^{ex}_t, \lambda_{16,t},  t\in{1,...,T} \label{dlu4}
+\end{align}
+The MG import and export power is defined to be non-negative as shown in Eqn (\ref{dlu3}), (\ref{dlu4}).
+
+\textbf{\emph{Power balance constraint:} }
+\begin{align}
+&p^m_{t}-p^b_{t} -L^i_{t}-l^d_{t}=p^{ex}_{t}-p^{im}_{t}, \mu_{2,t}, t\in{1,...,T}\label{6}
+\end{align}
+Eq (\ref{6}) ensures the power balance within the MG system.\\
+
+Finally, the MG optimal dispatch can be formulated as: 
+\begin{subequations}
+\begin{align}
+\text{min}_{\{y_t\}^{T}_{t=1}} & f\left(\{y_t\}^{T}_{t=1}\right)\nonumber\\
+\text{s.t.  }  & (12) - (25)\nonumber
+\end{align}
+\end{subequations}
+
+\subsection{Reformulation to a Single Level Problem}
+If the lower level problem is convex and satisfies certain regularity conditions \cite{convex}, it can be replaced by its Karush-Kuhn-Tucker(KKT) conditions \cite{bilevel1}, the formulation in (\ref{prime}) becomes a single -level problem reformulation as follows:
+
+\begin{ceqn}
+\begin{align}
+&\argminC_{x\in X, y\in Y}F\left(x,y\right)\nonumber\\
+\text{st:  } & G_i\left(x,y\right)\leq 0, \text{for   }  i \in \{1,2,...,I\}\nonumber\\
+& H_k\left(x,y\right)= 0, \text{for   }  k \in \{1,2,...,K\}\nonumber\\
+&g_i\left(x,y\right)\leq 0, \text{for   }  j \in \{1,2,...,j\}\nonumber\\
+&h_m\left(x,y\right)\leq 0, \text{for   }  m \in \{1,2,...,M\}\nonumber\\
+&\text{dual feasibility: }\lambda_i\geq 0, \text{for   }  i \in \{1,2,...,i\}\nonumber\\
+&\text{complementary slackness: }\lambda_i*g_i\left(x,y\right)= 0, \text{for   }  i \in \{1,2,...,i\}\nonumber\\ 
+&\text{stationarity: }\nabla \textit{L}(x,y,\lambda,\mu)=0\nonumber\\ 
+& where:\nonumber\\ 
+ &  \textit{L}(x,y,\lambda)=f(x,y)+\sum_{i=1}^{J}\lambda _ig_i(x,y)+\sum_{m=1}^{M}\mu _mh_m(x,y)\nonumber
+\end{align}
+\end{ceqn}
+
+The lower level problem in this study is a convex optimization problem and satisfies Slater's condition, which is one of the sufficient conditions for strong duality theorem \cite{convex}. Therefore, the lower level problem could be replaced by its KKT conditions. The KKT conditions are given below:\\
+\textbf{\emph{Stationarity}}: \\
+For stationarity, the derivative of the lagrangian function  $\textit{L}(x,y,\lambda)$ is taken with respect to each optimization variable. For example, eq(\ref{lam1}) is the derivative of the lagrangian function with respect to $p^m_t$.
+\begin{align}
+& C^m + \lambda_{2,t}-\lambda_{1,t}+\mu_{2,t} =0 , t\in{1,...,T} \label{lam1}\\
+& -C^d - \lambda_{4,t}+\lambda_{3,t}-\mu_{2,t}=0 , t\in{1,...,T} \\
+& C^b + \lambda_{13,t}-\lambda_{14,t}+\mu_{1,t} =0 , t\in{1,...,T} \\
+& c^{im}_{t} - \lambda_{14,t} - \mu_{2,t} =0 , t\in{1,...,T} \\
+& -c^{ex}_{t} - \lambda_{15,t} + \mu_{2,t} =0 , t\in{1,...,T} \\
+& \lambda_{8,t} - \lambda_{11,t} - \mu_{1,t} - \mu_{2,t}  =0 , t\in{1,...,T} \\
+& -P^{dr}_t - \lambda_{8,t} - \lambda_{7,t} +\lambda_{5,t}  =0 , t\in{1,...,T} \\
+& -P^{dr}_t - \lambda_{10,t} - \lambda_{9,t} +\lambda_{6,t}  =0 , t\in{1,...,T} 
+\end{align}
+\textbf{\emph{Dual feasibility}}: \\
+For dual feasibility, all dual variables need to be non-negative.
+\begin{align}
+\lambda_{1,t} ... \lambda_{16,t} , t\in{1,...,T} \geq 0 
+\end{align}
+\textbf{\emph{Complementary slackness}}: \\
+For complementary slackness, the product of the dual variables and their corresponding inequalities need to be zero.
+\begin{align}
+& \lambda_{1,t}*(P^m_{t}-\underline P^m) = 0 , t\in{1,...,T}  \\
+& \lambda_{2,t} *(P^m_{t}-\overline P^m) = 0 , t\in{1,...,T} \\
+& \lambda_{3,t}*(l^d_{t}-\overline L^d_t) = 0 , t\in{1,...,T} \\
+& \lambda_{4,t}*(l^d_{t}-\underline L^d_t) = 0 , t\in{1,...,T} \\
+& \lambda_{5,t}*(dr_{t}^{up} + l^d_{t} - \overline l^d_{t} ) = 0 , t\in{1,...,T} \\
+& \lambda_{6,t}*(-dr_{t}^{dn} - l^d_{t} + \underline l^d_{t} ) = 0 , t\in{1,...,T} \\
+& \lambda_{7,t}*(dr_{t}^{up}) = 0 , t\in{1,...,T} \\
+& \lambda_{8,t}*(dr_{t}^{up}-W^{up}) = 0 , t\in{1,...,T} \\
+& \lambda_{9,t}*(dr_{t}^{dn}) = 0, t\in{1,...,T}  \\
+& \lambda_{10,t}*(dr_{t}^{dn}-W^{dn}) = 0 , t\in{1,...,T} \\
+& \lambda_{11,t}*( p^b_{t} - \overline p^b_{t} ) = 0 , t\in{1,...,T} \\
+& \lambda_{12,t}*( p^b_{t} - \underline p^b_{t} ) = 0 , t\in{1,...,T} \\
+& \lambda_{13,t}*( b_{t} - \overline B ) = 0 , t\in{1,...,T} \\
+& \lambda_{14,t}*( b_{t} - \underline B ) = 0 , t\in{1,...,T} \\
+& \lambda_{15,t}*( b_{t}  ) = 0 , t\in{1,...,T} \\
+& \lambda_{16,t}*( b_{t} ) = 0 , t\in{1,...,T} 
+\end{align}
+
+This reformulation is not easy to solve mainly due to the non-convexity in the complementary slackness and bilinear terms in the objective function. The big-M reformulation is used to transform the complementary conditions to mixed integer constraints. The technical details of the Big-M method is given in the appendix. 
+
+According to strong duality theorem, the optimal objective function value of the lower level optimization dual problem equals the optimal objective function value of the lower level optimization primal problem.  As a result, the bilinear terms $-p^{im}_{t}c^{im}_{t}+p^{ex}_{t}c^{ex}_{t}+p^{dr}_{t}(dr_{t}^{up}+dr_{t}^{dn})$ in the lower level objective function, which also appear in the upper level objective function, could be expressed as linear terms using the objective function of the dual problem. The lower level dual problem objective function is as follow:\\
+\begin{equation*}
+\begin{array}{lcl}
+D(\{\lambda_t,\mu_t\}^{T}_{t=1}) &=& \sum_{t=1}^{T}(-C^{dr2}dr^{dn}_tdr^{dn}_t - C^{dr2}dr^{up}_tdr^{up}_t - C^{m2}_gp^m_{g,t}p^m_{g,t}\\
+&-&\mu_{2,t} L^i_t + \lambda1_t\underline{P}^m - \lambda_{2,t} \overline{P}^m- \lambda_{3,t} underline{L}^d_t + \lambda_{4,t} \overline{L}^d_t - \lambda_{5,t} \underline{L}^d_t+\lambda_{6,t} \overline{L}^d_t \\
+&-&\lambda_{8,t} \overline{W}^{up} +\lambda_{10,t} \overline{W}^{dn} -\lambda_{11,t} \overline{P}^b_t +\lambda_{12,t} \underline{P}^b_t-\lambda_{13,t} \overline{B} +\lambda_{14,t} \underline{B})\\
+%F(\{x_t\}^{T}_{t=1}) &=& \sum_{t=1}^{T}\sum_{g=1}^{G}(C_{g,t} p_{g,t}+C^r_{g}(r_{g,t}^{up}+r_{g,t}^{dn})\\
+\end{array}
+\label{eqn:obj}
+\end{equation*}
+
+The bilinear terms $-p^{im}_{t}c^{im}_{t}+p^{ex}_{t}c^{ex}_{t}+p^{dr}_{t}(dr_{t}^{up}+dr_{t}^{dn}$ in the upper level objective function are represented as:
+\begin{align*}
+\sum_{t=1}^{T}(C^{m1}_g p^m_{g,t} +C^{m2}_g p^m_{g,t}  p^m_{g,t} +C^bb_t + C^{dr1} dr^{up}_{g,t} + dr^{dn}_{g,t}  +\\
++C^{dr2} (dr^{up}_{g,t}dr^{up}_{g,t} + dr^{dn}_{g,t}dr^{dn}_{g,t}  ) - C^d_{t}l^d_{t}) - D(\{\lambda_t,\mu_t\}^{T}_{t=1}) 
+\end{align*}
+
+The reformulated upper level objective function is as follow:\\
+\begin{equation*}
+\begin{array}{lcl}
+F\left(\{x_t,y_t, \lambda_t, \mu_t\}^{T}_{t=1}\right) &=& \sum_{t=1}^{T}\sum_{g=1}^{G}(C^c_{g,t} w_{g,t}+C_{g,t} p_{g,t}+C^r_{g}(r_{g,t}^{up}+r_{g,t}^{dn})\\
+&+&C^{m1}_g p^m_{g,t} +C^{m2}_g p^m_{g,t}  p^m_{g,t} +C^bb_t + C^{dr1} dr^{up}_{g,t} + dr^{dn}_{g,t} \\
+&+&C^{dr2} (dr^{up}_{g,t}dr^{up}_{g,t} + dr^{dn}_{g,t}dr^{dn}_{g,t}  ) - C^d_{t}l^d_{t}) - D(\{\lambda_t,\mu_t\}^{T}_{t=1}) 
+\end{array}
+\label{eqn:obj}
+\end{equation*}
+
+The reformulated single level problem has the following format:\\
+\begin{subequations}
+\begin{align}
+\text{min}_{\{x_t,y_t, \lambda_t, \mu_t\}^{T}_{t=1}} & F\left(\{x_t,y_t, \lambda_t, \mu_t\}^{T}_{t=1}\right)\nonumber\\
+\text{st:   } & (1)-(50)\nonumber
+\end{align}
+\end{subequations}
+
+With the big-M reformulation, a set of binary variables and additional constants are introduced. The bilevel problem becomes a single level mixed integer linear problem and could thus be solved with a wide range of commercial solvers such as Cplex and Gurobi. 
+

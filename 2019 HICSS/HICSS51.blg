@@ -1,0 +1,62 @@
+This is BibTeX, Version 0.99d (TeX Live 2017)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: HICSS51.aux
+The style file: IEEEtran.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: HICSS51.bib
+Repeated entry---line 70 of file HICSS51.bib
+ : @article{anderson2011wind
+ :                          ,
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for "liu2016quantifying"
+-- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
+-- http://www.michaelshell.org/tex/ieeetran/bibtex/
+-- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+
+Done.
+You've used 8 entries,
+            4087 wiz_defined-function locations,
+            864 strings with 8680 characters,
+and the built_in function-call counts, 4503 in all, are:
+= -- 344
+> -- 97
+< -- 25
++ -- 49
+- -- 18
+* -- 209
+:= -- 726
+add.period$ -- 17
+call.type$ -- 8
+change.case$ -- 5
+chr.to.int$ -- 57
+cite$ -- 8
+duplicate$ -- 337
+empty$ -- 414
+format.name$ -- 25
+if$ -- 1031
+int.to.chr$ -- 0
+int.to.str$ -- 8
+missing$ -- 58
+newline$ -- 47
+num.names$ -- 8
+pop$ -- 152
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 2
+skip$ -- 349
+stack$ -- 0
+substring$ -- 137
+swap$ -- 234
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 5
+type$ -- 8
+warning$ -- 0
+while$ -- 20
+width$ -- 9
+write$ -- 89
+(There was 1 error message)

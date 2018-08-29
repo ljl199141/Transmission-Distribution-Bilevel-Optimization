@@ -1,0 +1,78 @@
+%!TEX root = Journal.tex
+\subsection{Big-M Method}
+The complementary conditions are set of constraints with the following format:\\
+\begin{align}
+\lambda_i*g_i(x,y) =0 \nonumber
+\end{align}
+Specifically, given a sufficiently large positive value $M_i$ and binary value $\phi_i$, the complementary conditions could be reformulated as below:
+\begin{align}
+&-(1-\phi_i)*M_i\leq g_i(x,y)\nonumber\\
+&\lambda_i\leq\phi_i*M_i\nonumber
+\end{align}
+
+For a detailed treatment of the Big-M method, please refer to \cite{winston2003introduction}.
+
+%\subsection{Mccormick Envelope}
+%For a toy optimization problem of the following format:\\
+%\begin{align}
+%\text{min } Z = x*y\\ \nonumber
+%\underline{x} \leq x \leq \overline{x} \nonumber\\
+%\underline{y} \leq y \leq \overline{y} \nonumber
+%\end{align}
+%The problem could be reformulated by introducing a new variable $w=x*y$ as follow:\\
+%\begin{align}
+%\text{min } Z = w\\ \nonumber
+%w \geq \overline{x} *y +x*\overline{y} -\overline{x} *\overline{y} \nonumber\\  
+%w \geq \underline{x} *y +x*\underline{y} -\underline{x} *\underline{y} \nonumber\\  
+%w \leq \overline{x} *y +x*\underline{y} -\overline{x} *\underline{y} \nonumber\\
+%w \leq \underline{x} *y +x*\overline{y} -\underline{x} *\overline{y} \nonumber\\
+%\underline{x} \leq x \leq \overline{x} \nonumber\\
+%\underline{y} \leq y \leq \overline{y} \nonumber
+%\end{align}
+%For a detailed treatment of the Big-M method, please refer to \cite{castro2015tightening}.
+
+\subsection{Microgrid Parameters}
+The parameter values for a 25 MW MG are listed in the table below.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ |c|c|c| } 
+ \hline
+Parameters & Values  \\ 
+ \hline
+$\underline{L}^d_{t}$ & 6.6MW  \\ 
+ \hline
+$\overline{L}^d_{t}$ & 12MW  \\ 
+ \hline
+$L^i_{t}$ & 12MW  \\ 
+ \hline
+$\overline{B}$ & 10MW  \\ 
+ \hline
+$\underline{B}$ & 0MW \\ 
+ \hline
+$C^b$ & \$0.1/MW  \\ 
+ \hline
+$C^{m1}_t$ & \$4/MW  \\ 
+ \hline
+$C^{m2}_t$ & \$0.07/MW  \\ 
+ \hline
+ $C^{dr1}_t$ & \$0.4/MW  \\ 
+ \hline
+$C^{dr2}_t$ & \$0.3/MW  \\ 
+ \hline
+$C^d_t$ & \$6/MW  \\ 
+ \hline
+ $\overline P^d_t$ & \$1/MW  \\ 
+ \hline
+$\overline P^m$ & 25MW  \\ 
+ \hline
+$\underline P^m$ & 0MW  \\ 
+ \hline
+$\underline P^b$ & -5MW  \\ 
+ \hline
+$\overline P^b$ & 5MW  \\ 
+ \hline
+\end{tabular}
+\caption{ MG parameter values}
+ \label{wdlevel}
+\end{table} 

@@ -1,0 +1,108 @@
+\documentclass[review]{elsarticle}
+\usepackage[a4paper,  margin=1.5in]{geometry}
+\usepackage{bbm}
+\usepackage{multirow}
+\usepackage{mathtools}
+\usepackage{stackengine}
+\usepackage[font=scriptsize,labelfont=scriptsize]{caption}
+\usepackage{tikz, pgfplots} 
+\newcommand\barbelow[1]{\stackunder[1.2pt]{$#1$}{\rule{.8ex}{.075ex}}}
+\usepackage{algorithmicx,algorithm,algpseudocode}
+\usepackage{nomencl} 
+
+\usepackage{flushend}
+\usepackage{nccmath}
+\usepackage{amsmath,amssymb}
+\usepackage[mathscr]{eucal}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{bm,color}
+\usepackage{url}
+%\usepackage{cite}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{marginnote}
+\allowdisplaybreaks[3]
+
+\newcommand{\co}{\textrm{co}}
+\newcommand{\cgend}{\mathscr{C}^\textrm{gen}_{\textrm{dyn}}}
+\newcommand{\cgens}{\mathscr{C}^\textrm{gen}_{\textrm{stat}}}
+\newcommand{\pg}[2]{p_{g_{#1}}^{#2}}
+\newcommand{\qg}[2]{q_{g_{#1}}^{#2}}
+\newcommand{\ug}[2]{u_{g_{#1}}^{#2}}
+\newcommand{\cg}[2]{\check{u}_{g_{#1}}^{#2}}
+\newcommand{\pw}[2]{\mathbf{p}_{r_{#1}}^{#2}}
+\newcommand{\ld}[1]{\mathbf{L}^{#1}}
+\newcommand{\ldk}[2]{\mathbf{L}^{#1}_{#2}}
+\newcommand{\pgmax}[1]{p_{{g}_{\text{max},#1}}}
+\newcommand{\pgmin}[1]{p_{{g}_{\text{min},#1}}}
+\newcommand{\rup}[1]{R_{\text{up},#1}}
+\newcommand{\rdn}[1]{R_{\text{dn},#1}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\R}{\mathbb{R}}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argminB}{argmin}
+\DeclareMathOperator*{\argminC}{min}
+\graphicspath{{Figs/}}
+\usepackage{nomencl} 
+\usepackage{accents}
+\newcommand{\ubar}[1]{\underaccent{\bar}{#1}}
+\makenomenclature 
+
+
+\begin{document}
+\begin{frontmatter}
+\title{Transmission System and Microgrid Co-optimization Model}
+%\author[a]{Jialin Liu\corref{cor1} }
+%\author[b]{Luckny Z\'ephyr }
+%\author[c]{C. Lindsay Anderson}
+%\cortext[cor1]{Corresponding author, Tel.:+1-607-379-8727. Email:jl3455@cornell.edu. Address: 1 Wing Dr, Ithaca, NY, 14850}
+%\address[a]{Department of Electrical and Computer Engineering, Cornell University, United States}
+%\address[b]{Department of Biological and Environmental Engineering, Cornell University, United States}
+%\address[c]{Department of Biological and Environmental Engineering, Cornell University, United States}
+%
+%\begin{abstract}
+%
+%\end{abstract}
+%
+%\begin{keyword}
+%microgrid, renewable energy, responsive demand, bilevel optimization, transmission system 
+%\end{keyword}
+\end{frontmatter}
+
+
+\printnomenclature
+%\section{Introduction}\label{sec:Intro}
+%\input{introduction}
+
+\section{Problem Description}\label{sec:pd}
+\input{pd}
+
+\section{Optimization Model}\label{sec:Model}
+\input{model}
+
+\section{Numerical Results}\label{sec:Results}
+\input{results}
+%\section{Concluding Remarks}\label{sec:Conclude}
+%\input{Conclusions}
+
+\section{Appendix}\label{sec:Appendix}
+\input{Appendix}
+%
+%\section{References}\label{sec:References}
+\bibliographystyle{IEEEtran}
+\bibliography{Journal}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
+
+
+
+

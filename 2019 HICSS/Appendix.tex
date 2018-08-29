@@ -1,0 +1,81 @@
+%!TEX root = HICSS51.tex
+\subsection{Big-M Method}
+The complementary conditions are set of constraints with the following format:\\
+\begin{align}
+\lambda_i*g_i(x,y) =0 \nonumber
+\end{align}
+Specifically, given a sufficiently large positive value $M_i$ and binary value $\phi_i$, the complementary conditions could be reformulated as below:
+\begin{align}
+&-(1-\phi_i)*M_i\leq g_i(x,y)\nonumber\\
+&\lambda_i\leq\phi_i*M_i\nonumber
+\end{align}
+
+For a detailed treatment of the Big-M method, please refer to \cite{winston2003introduction}.
+
+%\subsection{Mccormick Envelope}
+%For a toy optimization problem of the following format:\\
+%\begin{align}
+%\text{min } Z = x*y\\ \nonumber
+%\underline{x} \leq x \leq \overline{x} \nonumber\\
+%\underline{y} \leq y \leq \overline{y} \nonumber
+%\end{align}
+%The problem could be reformulated by introducing a new variable $w=x*y$ as follow:\\
+%\begin{align}
+%\text{min } Z = w\\ \nonumber
+%w \geq \overline{x} *y +x*\overline{y} -\overline{x} *\overline{y} \nonumber\\  
+%w \geq \underline{x} *y +x*\underline{y} -\underline{x} *\underline{y} \nonumber\\  
+%w \leq \overline{x} *y +x*\underline{y} -\overline{x} *\underline{y} \nonumber\\
+%w \leq \underline{x} *y +x*\overline{y} -\underline{x} *\overline{y} \nonumber\\
+%\underline{x} \leq x \leq \overline{x} \nonumber\\
+%\underline{y} \leq y \leq \overline{y} \nonumber
+%\end{align}
+%For a detailed treatment of the Big-M method, please refer to \cite{castro2015tightening}.
+
+\subsection{Microgrid Parameters}
+The parameter values for a 25 MW MG are listed in the table below.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ |c|c|c|c|c|c|c| } 
+ \hline
+Parameters & Bus 1 & Bus 2& Bus 3& Bus 4& Bus 5& Bus 6\\ 
+ \hline
+$\overline{L}^d_{i}$ & 0MW & 2MW & 2.5MW & 0MW & 2MW & 1MW\\ 
+ \hline
+$\overline{L}^d_{i}$ & 0MW & 1MW & 1.25MW & 0MW & 1MW & 0.5MW  \\ 
+ \hline
+$L^{ie}_{i}$ & 0MW & 2MW & 2.5MW & 0MW & 2MW & 1MW  \\ 
+ \hline
+$\overline{\overline{P}_{i}}$ & 10MW & 10MW & 10MW & 10MW & 10MW & 10MW  \\ 
+ \hline
+$\underline{\underline{P}_{i}}$ & 0MW & 0MW & 0MW & 0MW & 0MW & 0MW  \\ 
+ \hline
+$C^{d1}_{i}$ & 0\$/MW & 0\$/MW & 0\$/MW & 0\$/MW & 0\$/MW & 5\$/MW   \\ 
+ \hline
+$C^{d2}_{i}$ & 0\$/MW & 0\$/MW & 0\$/MW & 0\$/MW & 0\$/MW & 0.02\$/MW   \\ 
+ \hline
+$\overline P^d_i$ & 0MW & 0MW & 0MW & 0MW & 0MW & 10MW \\ 
+ \hline
+ $\underline P^d_i$ & 0MW & 0MW & 0MW & 0MW & 0MW & 0MW  \\ 
+ \hline
+\end{tabular}
+
+\begin{tabular}{ |c|c|c|c|c|c|c| } 
+ \hline
+
+\end{tabular}
+ 
+\begin{tabular}{ |c|c|c|c|c|c|c| } 
+ \hline
+Parameters & Values\\ 
+ \hline
+$C^{d}_t$ & 3\$/MW  \\ 
+ \hline
+ $C^{dr1}_t$ & 1\$/MW  \\ 
+ \hline
+$C^{dr2}_t$ & 1\$/MW  \\ 
+ \hline
+\end{tabular}
+\caption{DS parameter values}
+ \label{wdlevel}
+\end{table} 
