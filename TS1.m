@@ -240,15 +240,15 @@
        end
    end  
    
-   mu1A = sdpvar(5,nt,'full'); 
-   bigM = [];
-   DC = [];
-   ST = [];
-   l1A = sdpvar(1,nt,'full'); 
-   b1A = binvar(1,nt,'full'); 
-   m1A = 10000000;
-%    DC = [DC,l1A.*(dgA-dgAdn) == 0];
-   bigM = [bigM, l1A<=m1A*b1A, dgA-dgAdn<=m1A*(1-b1A)];
+%    mu1A = sdpvar(5,nt,'full'); 
+%    bigM = [];
+%    DC = [];
+%    ST = [];
+%    l1A = sdpvar(1,nt,'full'); 
+%    b1A = binvar(1,nt,'full'); 
+%    m1A = 10000000;
+% %    DC = [DC,l1A.*(dgA-dgAdn) == 0];
+%    bigM = [bigM, l1A<=m1A*b1A, dgA-dgAdn<=m1A*(1-b1A)];
    
    l2A = sdpvar(1,nt,'full');  
    b2A = binvar(1,nt,'full');
