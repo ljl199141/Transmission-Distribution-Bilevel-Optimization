@@ -45,7 +45,7 @@
    PAup = 20;
    PAdn = 0;
    dgA = sdpvar(1,nt,'full');
-   dgAup = 10;
+   dgAup = 0;
    dgAdn = 0;
    drupA = sdpvar(dbusA,nt,'full');
    drdnA = sdpvar(dbusA,nt,'full');
