@@ -30,13 +30,13 @@
    dbusA = 6;
    total = [0, 4, 5, 0, 4, 2];
    total = repmat(total',1,nt);
-   dssize = 0.5;
+   dssize = 1;
    cd2A = 0.02;
    cd1A = 5; 
    PA = sdpvar(dbusA,nt,'full');
    pdA1 = sdpvar(dbusA,nt,'full');
    pdA1up = total*dssize;
-   pdA1dn = 0.5*total*dssize;
+   pdA1dn = 0*total*dssize;
    pdA = total-pdA1up;
    CpdA1 = 3;
    PAup = 20;
