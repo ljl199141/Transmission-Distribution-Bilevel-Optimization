@@ -124,7 +124,7 @@
     end
     Gmin=[zeros(ng,nt)];
     pg=sdpvar(ng,nt,'full');
-    onoff=binvar(ng,nt,'full');
+    onoff=ones(ng,nt);
     
     Rgmax=0.1*Gmax;
     rgup=sdpvar(ng,nt,'full');
@@ -171,7 +171,7 @@
           count = count+1;
       end
     end
-    CO = [CO,-lineC<=GSF*Pinj<=lineC];
+    CP = [-lineC<=GSF*Pinj<=lineC];
     
     Pinj1=sdpvar(bus,nt,'full'); % bus nodal matrix with forecast wind        
     count = 1;
@@ -223,19 +223,16 @@
     % Generator Constraints
     CO=[CO,-Rdn(:,2:nt)<=pg(:,2:nt)-pg(:,1:nt-1)<=Rup(:,2:nt)]; % ramping CO
 
-    CO=[CO,sum(pg)-sum(loads)+wf-PA(1,:)>=0];   %note
+    EP=[sum(pg)-sum(loads)+wf-PA(1,:)>=0];   %note
 %% DISCO1 Constraints
     CDA = [PAdn<=PA<=PAup, pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
     CDA = [CDA,PA(1,:) >= sum(pdA + pdA1)]; 
-%% DISCO1 Objective
-    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
-         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drpA.*sum(drupA+drdnA))+ sum(PA(1,:).*cimA) 
 %% Transmission Objective
     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc+sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
     O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
 %% Solve Problem
-   optimize([CDA,CO],OO+O1+O2-10000*scale) % note
+   optimize([CDA,CO,EP,CP],OO+O1+O2-10000*scale) % note
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
@@ -243,6 +240,11 @@
 %    value(drdnA)
    TransAvg = value(OO+O1+O2)
    pene2 = (max(value(windup))+max(value(wf)))/149
+   EnergyPrice = dual(EP);
+   ConPrice = dual(CP);
+%% DISCO1 Objective
+   OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
+         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice+ PA(1,:)*EnergyPrice 
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;
