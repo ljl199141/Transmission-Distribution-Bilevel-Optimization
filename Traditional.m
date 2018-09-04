@@ -36,7 +36,7 @@
    PA = sdpvar(dbusA,nt,'full');
    pdA1 = sdpvar(dbusA,nt,'full');
    pdA1up = total*dssize;
-   pdA1dn = 0*total*dssize;
+   pdA1dn = 0.0001*total*dssize;
    pdA = total-pdA1up;
    CpdA1 = 3;
    PAup = 20;
@@ -101,7 +101,8 @@
     winddown2=prctile(winderror,pr2);
     
     % wind1
-    scale = sdpvar(1);
+%     scale = sdpvar(1);
+    scale = 0.5;
     wf1 = scale*(wf1);
     windup1 = scale*(windup1);
     winddown1 = scale*(winddown1);
@@ -232,7 +233,7 @@
     O1 = sum(pg'.*pg')*cg2;
     O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
 %% Solve Problem
-   optimize([CDA,CO,EP,CP],OO+O1+O2-10000*scale) % note
+   optimize([CDA,CO,EP,CP],OO+O1+O2) % note -10000*scale
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
