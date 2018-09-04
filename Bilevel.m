@@ -30,7 +30,7 @@
    dbusA = 6;
    total = [0, 4, 5, 0, 4, 2];
    total = repmat(total',1,nt);
-   dssize = 1;
+   dssize = 0.5;
    
    cd2A = 0.02;
    cd1A = 5;
@@ -39,7 +39,7 @@
    PA = sdpvar(dbusA,nt,'full');
    pdA1 = sdpvar(dbusA,nt,'full');
    pdA1up = total*dssize;
-   pdA1dn = 0*total*dssize;
+   pdA1dn = 0.5*total*dssize;
    pdA = total-pdA1up;
    CpdA1 = 3;
    PAup = 20;
@@ -150,7 +150,7 @@
     cimA = sdpvar(1,nt,'full'); %note
     drpA = sdpvar(1,nt,'full'); %note
     % LB & UB 
-    CO = [Gmin<=pg<=Gmax,0<=Pdr<=Pdrmax,0<=rgup<=Rgmax,0<=rgdn<=Rgmax,Pimmin<=Pim<=Pimmax,0<=cimA<=30,0<=drpA<=10];      
+    CO = [Gmin<=pg<=Gmax,0<=Pdr<=Pdrmax,0<=rgup<=Rgmax,0<=rgdn<=Rgmax,Pimmin<=Pim<=Pimmax,0<=cimA<=10,0<=drpA<=10];      
     %% Transmission Constraints
     % power flow with forecast wind
     genbus = mpc.gen(:,1);
