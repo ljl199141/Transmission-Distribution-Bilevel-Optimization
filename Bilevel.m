@@ -129,8 +129,8 @@
     end
     Gmin=[zeros(ng,nt)];
     pg=sdpvar(ng,nt,'full');
-%     onoff=ones(ng,nt);
-    onoff=binvar(ng,nt,'full');
+    onoff=ones(ng,nt);
+%     onoff=binvar(ng,nt,'full');
 
     Rgmax=0.1*Gmax;
     rgup=sdpvar(ng,nt,'full');
