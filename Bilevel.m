@@ -31,21 +31,26 @@
    total = [0, 4, 5, 0, 4, 2];
    total = repmat(total',1,nt);
    dssize = 1;
+   
    cd2A = 0.02;
-   cd1A = 5; 
+   cd1A = 5;
+%    cd2A = 0.0;
+%    cd1A = 0;   
    PA = sdpvar(dbusA,nt,'full');
    pdA1 = sdpvar(dbusA,nt,'full');
    pdA1up = total*dssize;
-   pdA1dn = 0.0001*total*dssize;
+   pdA1dn = 0.00001*total*dssize;
    pdA = total-pdA1up;
    CpdA1 = 3;
-   PAup = 10;
+   PAup = 20;
    PAdn = 0;
    dgA = sdpvar(1,nt,'full');
-   dgAup = 10;
+   dgAup = 0;
    dgAdn = 0;
    drupA = sdpvar(dbusA,nt,'full');
    drdnA = sdpvar(dbusA,nt,'full');
+%    drA1 = 1;
+%    drA2 = 1;
    drA1 = 1;
    drA2 = 1;
    drscale = 0.5;
@@ -101,7 +106,6 @@
     winddown2=prctile(winderror,pr2);
     
     % wind1
-%     scale = sdpvar(1);
     scale = 0.5;
     wf1 = scale*(wf1);
     windup1 = scale*(windup1);
@@ -126,7 +130,8 @@
     Gmin=[zeros(ng,nt)];
     pg=sdpvar(ng,nt,'full');
     onoff=ones(ng,nt);
-    
+%     onoff=binvar(ng,nt,'full');
+
     Rgmax=0.1*Gmax;
     rgup=sdpvar(ng,nt,'full');
     rgdn=sdpvar(ng,nt,'full');
@@ -145,7 +150,7 @@
     cimA = sdpvar(1,nt,'full'); %note
     drpA = sdpvar(1,nt,'full'); %note
     % LB & UB 
-    CO = [Gmin<=pg<=Gmax,0<=Pdr<=Pdrmax,0<=rgup<=Rgmax,0<=rgdn<=Rgmax,Pimmin<=Pim<=Pimmax,0<=cimA<=10,0<=drpA<=10];      
+    CO = [Gmin<=pg<=Gmax,0<=Pdr<=Pdrmax,0<=rgup<=Rgmax,0<=rgdn<=Rgmax,Pimmin<=Pim<=Pimmax,0<=cimA<=30,0<=drpA<=10];      
     %% Transmission Constraints
     % power flow with forecast wind
     genbus = mpc.gen(:,1);
@@ -172,7 +177,7 @@
           count = count+1;
       end
     end
-    CP = [-lineC<=GSF*Pinj<=lineC];
+    CO = [CO,-lineC<=GSF*Pinj<=lineC];
     
     Pinj1=sdpvar(bus,nt,'full'); % bus nodal matrix with forecast wind        
     count = 1;
@@ -224,38 +229,107 @@
     % Generator Constraints
     CO=[CO,-Rdn(:,2:nt)<=pg(:,2:nt)-pg(:,1:nt-1)<=Rup(:,2:nt)]; % ramping CO
 
-    EP=[sum(pg)-sum(loads)+wf-PA(1,:)>=0];   %note
-%% DISCO1 Constraints
-    CDA = [ pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
-    CDA = [CDA,PAdn<=PA<=PAup];
-%    for i = 1:dbusA-1
-%        if i ~= dbusA-1
-%            CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:)];
-%        else
-%            CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:) + dgA];
-%        end
-%    end  
-    CDA = [CDA,PA(1,:) >= sum(pdA + pdA1)]; 
+    CO=[CO,sum(pg)-sum(loads)+wf-PA(1,:)==0];   %note
+    %% DISCO1 Constraints
+  CDA = [dgAdn<=dgA<=dgAup, PAdn<=PA<=PAup, pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
+   for i = 1:dbusA-1
+       if i ~= dbusA-1
+           CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:)];
+       else
+           CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:) + dgA];
+       end
+   end  
+   
+   mu1A = sdpvar(5,nt,'full'); 
+   bigM = [];
+   DC = [];
+   ST = [];
+   l1A = sdpvar(1,nt,'full'); 
+   b1A = binvar(1,nt,'full'); 
+   m1A = 10000000;
+%    DC = [DC,l1A.*(dgA-dgAdn) == 0];
+   bigM = [bigM, l1A<=m1A*b1A, dgA-dgAdn<=m1A*(1-b1A)];
+   
+   l2A = sdpvar(1,nt,'full');  
+   b2A = binvar(1,nt,'full');
+%    DC = [DC,l2A.*(dgA-dgAup) == 0];
+   bigM = [bigM, l2A<=m1A*b2A, -dgA+dgAup<=m1A*(1-b2A)];
+   
+   l3A = sdpvar(dbusA,nt,'full'); 
+   b3A = binvar(dbusA,nt,'full'); 
+%    DC = [DC,l3A.*(PA-PAdn) == 0];
+   bigM = [bigM, l3A<=m1A*b3A, PA-PAdn<=m1A*(1-b3A)];
+   
+   l4A = sdpvar(dbusA,nt,'full');  
+   b4A = binvar(dbusA,nt,'full');
+%    DC = [DC,l4A.*(PA-PAup) == 0];
+   bigM = [bigM, l4A<=m1A*b4A, -PA+PAup<=m1A*(1-b4A)];
+   
+   l5A = sdpvar(dbusA,nt,'full'); 
+   b5A = binvar(dbusA,nt,'full'); 
+%    DC = [DC,l5A.*(pdA1-pdA1dn) == 0];
+   bigM = [bigM, l5A<=m1A*b5A, pdA1-pdA1dn<=m1A*(1-b5A)];
+   
+   l6A = sdpvar(dbusA,nt,'full');  
+   b6A = binvar(dbusA,nt,'full');
+%    DC = [DC,l6A.*(pdA1-pdA1up) == 0];
+   bigM = [bigM, l6A<=m1A*b6A, -pdA1+pdA1up<=m1A*(1-b6A)];
+   
+   l7A = sdpvar(dbusA,nt,'full'); 
+   b7A = binvar(dbusA,nt,'full'); 
+%    DC = [DC,l7A.*(drupA) == 0];
+   bigM = [bigM, l7A<=m1A*b7A, drupA<=m1A*(1-b7A)];
+   
+   l8A = sdpvar(dbusA,nt,'full');  
+   b8A = binvar(dbusA,nt,'full');
+%    DC = [DC,l8A.*(drupA-drscale*pdA1) == 0];
+   bigM = [bigM, l8A<=m1A*b8A, -drupA+drscale*pdA1<=m1A*(1-b8A)];
+   
+   l9A = sdpvar(dbusA,nt,'full'); 
+   b9A = binvar(dbusA,nt,'full'); 
+%    DC = [DC,l9A.*(drdnA) == 0];
+   bigM = [bigM, l9A<=m1A*b9A, drdnA<=m1A*(1-b9A)];
+   
+   l10A = sdpvar(dbusA,nt,'full');  
+   b10A = binvar(dbusA,nt,'full');
+%    DC = [DC,l10A.*(drdnA-drscale*pdA1) == 0];
+   bigM = [bigM, l10A<=m1A*b10A, -drdnA+drscale*pdA1<=m1A*(1-b10A)];
+ 
+   DF = [l1A>=0,l2A>=0,l3A>=0,l4A>=0,l5A>=0,l6A>=0,l7A>=0,l8A>=0,l9A>=0,l10A>=0];
+   ST = [ST,2*cd2A*dgA+cd1A*ones(1,nt)+l2A-l1A-mu1A(5,:) == 0];%dgA
+   ST = [ST,cimA-mu1A(1,:)+l4A(1,:)-l3A(1,:)==0, mu1A(1,:)-mu1A(2,:)+l4A(2,:)-l3A(2,:) == 0, mu1A(2,:)-mu1A(3,:)+l4A(3,:)-l3A(3,:) == 0,...
+       mu1A(3,:)-mu1A(4,:)+l4A(4,:)-l3A(4,:) == 0, mu1A(4,:)-mu1A(5,:)+l4A(5,:)-l3A(5,:) == 0, mu1A(5,:)+l4A(6,:)-l3A(6,:) == 0];%PA
+   ST = [ST,2*CpdA1*pdA1(1,:)-2*CpdA1*pdA1up(1,:)+l6A(1,:)-l5A(1,:)-drscale*l8A(1,:)-drscale*l10A(1,:) == 0,...
+       2*CpdA1*pdA1(2:6,:)-2*CpdA1*pdA1up(2:6,:)+mu1A+l6A(2:6,:)-l5A(2:6,:)-drscale*l8A(2:6,:)-drscale*l10A(2:6,:) == 0];%pdA1      
+   ST = [ST,2*drA2*drupA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l8A-l7A == 0,2*drA2*drdnA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l10A-l9A == 0];%drup,drdn
+   ST = [ST,cimA == drpA];%dgA
 %% Transmission Objective
     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc+sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
-    O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
 %% Solve Problem
-   optimize([CDA,CO,EP,CP],OO+O1+O2) % note -10000*scale
+%    optimize([CDA],OD1)
+%    optimize([CDA,ST,bigM,DF],0)
+%    CpdA1 = 0;
+   dual = -sum(dgA.*dgA)*cd2A- sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2-sum(sum(pdA1.*pdA1)*CpdA1)+...
+       sum(sum(pdA(2:6,:).*mu1A)+sum(l3A*PAdn-l4A*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up)-l2A*dgAup)
+   OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +sum(dgA')*cd1A +...
+   sum(dgA'.*dgA')*cd2A  + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drpA.*sum(drupA+drdnA))+ sum(PA(1,:).*cimA) 
+   
+   O2 = dual-(sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +sum(dgA')*cd1A...
+       + sum(dgA'.*dgA')*cd2A + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum((pdA1up).*(pdA1up)))*CpdA1)
+   
+   optimize([CDA,ST,bigM,DF,CO],OO+O1-O2) % note -10000*scale
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
 %    value(drupA)
 %    value(drdnA)
-   TransAvg = value(OO+O1+O2)
+   TransAvg = value(OO+O1-O2)
+    % pene1 = max(value(wf))/149
    pene2 = (max(value(windup))+max(value(wf)))/149
-   EnergyPrice = dual(EP);
-   ConPrice = dual(CP);
-%% DISCO1 Objective
-   OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
-         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice+ PA(1,:)*EnergyPrice 
    sum(sum(drupA+drdnA))
    sum(PA(1,:))
+    % MGAvg = mean(MGcost)
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;
