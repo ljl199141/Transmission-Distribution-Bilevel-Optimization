@@ -302,7 +302,7 @@
    ST = [ST,2*CpdA1*pdA1(1,:)-2*CpdA1*pdA1up(1,:)+l6A(1,:)-l5A(1,:)-drscale*l8A(1,:)-drscale*l10A(1,:) == 0,...
        2*CpdA1*pdA1(2:6,:)-2*CpdA1*pdA1up(2:6,:)+mu1A+l6A(2:6,:)-l5A(2:6,:)-drscale*l8A(2:6,:)-drscale*l10A(2:6,:) == 0];%pdA1      
    ST = [ST,2*drA2*drupA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l8A-l7A == 0,2*drA2*drdnA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l10A-l9A == 0];%drup,drdn
-   ST = [ST,cimA == drpA];%dgA
+   ST = [ST,2*cd2A*dgA+cd1A*ones(1,nt)+l2A-l1A-mu1A(5,:) == 0];%dgA
 %% Transmission Objective
     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc+sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
