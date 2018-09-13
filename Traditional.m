@@ -54,7 +54,7 @@
     wl = 1; % wind penetration scaling factor
     load('ObsDays.mat');
     k = 54;
-    wf1=wl*ObsDays(k,:,11);
+    wf1=wl*ObsDays(k,:,11)+2;
     corr1=corrcoef(ObsDays(:,:,11));
     std_dev = [0.12,0.15,0.18,0.5,0.6,0.67,0.72,0.76,0.79,0.82,0.83,0.8315,0.833,0.835,0.836,0.838,0.839,0.841,0.842,0.844,0.845,0.847,0.848,0.85];
     for j=1:nt
@@ -246,6 +246,8 @@
 %% DISCO1 Objective
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
          sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice+ PA(1,:)*EnergyPrice 
+   sum(sum(drupA+drdnA))
+   sum(PA(1,:))
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;

@@ -30,13 +30,13 @@
    dbusA = 6;
    total = [0, 4, 5, 0, 4, 2];
    total = repmat(total',1,nt);
-   dssize = 0.5;
+   dssize = 1;
    cd2A = 0.02;
    cd1A = 5; 
    PA = sdpvar(dbusA,nt,'full');
    pdA1 = sdpvar(dbusA,nt,'full');
    pdA1up = total*dssize;
-   pdA1dn = 0.5*total*dssize;
+   pdA1dn = 0.0001*total*dssize;
    pdA = total-pdA1up;
    CpdA1 = 3;
    PAup = 20;
@@ -54,7 +54,7 @@
     wl = 1; % wind penetration scaling factor
     load('ObsDays.mat');
     k = 54;
-    wf1=wl*ObsDays(k,:,11);
+    wf1=wl*ObsDays(k,:,11)+2;
     corr1=corrcoef(ObsDays(:,:,11));
     std_dev = [0.12,0.15,0.18,0.5,0.6,0.67,0.72,0.76,0.79,0.82,0.83,0.8315,0.833,0.835,0.836,0.838,0.839,0.841,0.842,0.844,0.845,0.847,0.848,0.85];
     for j=1:nt
@@ -101,7 +101,8 @@
     winddown2=prctile(winderror,pr2);
     
     % wind1
-    scale = sdpvar(1);
+%     scale = sdpvar(1);
+    scale = 0.5;
     wf1 = scale*(wf1);
     windup1 = scale*(windup1);
     winddown1 = scale*(winddown1);
@@ -155,13 +156,12 @@
     
     Pinj=sdpvar(bus,nt,'full'); % bus nodal matrix with forecast wind        
     count = 1;
-    ConPrice = [];
     for i=1:bus
       if genvec(i) ~= 1
           if genvec(i) == wbus1
-              ConPrice = [ConPrice,Pinj(i,:)==-loads(i,:)+wf1];
+              CO = [CO,Pinj(i,:)==-loads(i,:)+wf1];
           elseif genvec(i) == wbus2
-              ConPrice = [ConPrice,Pinj(i,:)==-loads(i,:)+wf2];
+              CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
           else
@@ -172,7 +172,7 @@
           count = count+1;
       end
     end
-    CO = [CO,-lineC<=GSF*Pinj<=lineC];
+    CP = [-lineC<=GSF*Pinj<=lineC];
     
     Pinj1=sdpvar(bus,nt,'full'); % bus nodal matrix with forecast wind        
     count = 1;
@@ -233,7 +233,7 @@
     O1 = sum(pg'.*pg')*cg2;
     O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
 %% Solve Problem
-   optimize([CDA,CO,EP],OO+O1+O2-10000*scale) % note
+   optimize([CDA,CO,EP,CP],OO+O1+O2) % note -10000*scale
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
@@ -242,9 +242,10 @@
    TransAvg = value(OO+O1+O2)
    pene2 = (max(value(windup))+max(value(wf)))/149
    EnergyPrice = dual(EP);
+   ConPrice = dual(CP);
 %% DISCO1 Objective
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
-         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drpA.*sum(drupA+drdnA))+ PA(1,:)*EnergyPrice 
+         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice+ PA(1,:)*EnergyPrice 
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;
