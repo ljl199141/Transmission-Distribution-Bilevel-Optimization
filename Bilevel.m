@@ -327,6 +327,8 @@
    TransAvg = value(OO+O1-O2)
     % pene1 = max(value(wf))/149
    pene2 = (max(value(windup))+max(value(wf)))/149
+   sum(sum(drupA+drdnA))
+   sum(PA(1,:))
     % MGAvg = mean(MGcost)
 %% Plots
     % MG Gen VS Load:
