@@ -100,7 +100,7 @@
     wl = 1; % wind penetration scaling factor
     load('ObsDays.mat');
     k = 54;
-    wf1=wl*ObsDays(k,:,11)+6;
+    wf1=wl*ObsDays(k,:,11)+2;
     corr1=corrcoef(ObsDays(:,:,11));
     std_dev = [0.12,0.15,0.18,0.5,0.6,0.67,0.72,0.76,0.79,0.82,0.83,0.8315,0.833,0.835,0.836,0.838,0.839,0.841,0.842,0.844,0.845,0.847,0.848,0.85];
     for j=1:nt
@@ -217,10 +217,10 @@
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
-          elseif genvec(i) == dbus2
-              CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
+%           elseif genvec(i) == dbus2
+%               CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)];%note
+%           elseif genvec(i) == dbus3
+%               CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
           end
@@ -241,10 +241,10 @@
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
-          elseif genvec(i) == dbus2
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+drdnB];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+drdnE];%note
+%           elseif genvec(i) == dbus2
+%               CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+drdnB];%note
+%           elseif genvec(i) == dbus3
+%               CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+drdnE];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -265,10 +265,10 @@
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
-          elseif genvec(i) == dbus2
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-drupB];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-drupE];%note
+%           elseif genvec(i) == dbus2
+%               CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-drupB];%note
+%           elseif genvec(i) == dbus3
+%               CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-drupE];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end
@@ -289,7 +289,7 @@
     % Generator Constraints
     CO=[CO,-Rdn(:,2:nt)<=pg(:,2:nt)-pg(:,1:nt-1)<=Rup(:,2:nt)]; % ramping CO
 
-    CO=[CO,sum(pg)-sum(loads)+wf-PA(1,:)-PB(1,:)-PE(1,:)==0];   %note
+    CO=[CO,sum(pg)-sum(loads)+wf-PA(1,:)==0];   %note
     %% DISCO1 Constraints
   CDA = [dgAdn<=dgA<=dgAup, PAdn<=PA<=PAup, pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
    for i = 1:dbusA-1
@@ -503,8 +503,8 @@
    ST = [ST,2*drE2*drupE+(drE1)*ones(dbusE,nt)-repmat(drpE,dbusE,1)+l8E-l7E == 0,2*drE2*drdnE+(drE1)*ones(dbusE,nt)-repmat(drpE,dbusE,1)+l10E-l9E == 0];%drup,drdn
    ST = [ST,cimE == drpE];%dgE
 %% Transmission Objective
-    OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA)-sum(drupB)-sum(drupE))*wc...
-        +sum(-winddown-sum(rgup)-sum(drdnA)-sum(drdnB)-sum(drdnE))*lc;%note
+    OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc...
+        +sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
 %% Solve Problem
    dual = -sum(dgA.*dgA)*cd2A- sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2-sum(sum(pdA1.*pdA1)*CpdA1)+...
@@ -531,13 +531,13 @@
    O2E = dual-(sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2 +sum(dgE')*cd1E...
        + sum(dgE'.*dgE')*cd2E + sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 - sum(sum((pdE1up).*(pdE1up)))*CpdE1)
    
-   optimize([CDA,CDB,CDE,ST,bigM,DF,CO],OO+O1-O2-O2B-O2E) % note -10000*scale
+   optimize([CDA,ST,bigM,DF,CO],OO+O1-O2) % note -10000*scale
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
 %    value(drupA)
 %    value(drdnA)
-   TransAvg = value(OO+O1-O2-O2B-O2E)
+   TransAvg = value(OO+O1-O2)
     % pene1 = max(value(wf))/149
    pene2 = (max(value(windup))+max(value(wf)))/149
    sum(sum(drupA+drdnA))
