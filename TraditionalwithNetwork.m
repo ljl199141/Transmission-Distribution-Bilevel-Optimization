@@ -104,8 +104,11 @@
 %     scale = sdpvar(1);
     scale = 0.5;
     wf1 = scale*(wf1);
-    windup1 = scale*(windup1);
-    winddown1 = scale*(winddown1);
+%     windup1 = scale*(windup1);
+%     winddown1 = scale*(winddown1);
+    
+    windup1 = [2.14850277468970,2.38176933526874,1.74677853896453,2.60511542849926,2.35355880939503,2.41625640922597,9.26333481098347,4.72603747192732,3.64443832323432,3.54370589728489,3.77247031861537,5.32507128646877,3.89024919339414,3.43366439452552,3.79975232769689,5.91542122062703,18.0071565379186,20.3629232486021,27.8562658759252,16.9300600310706,14.6166013530343,12.8505562939878,9.60886741793157,16.5816874966563];
+    winddown1 = [-2.29653290221721,-2.29980619610469,-1.86455639333191,-1.35000000000000,-1,-1,-3.40000000000000,-1.45000000000000,-1.05000000000000,-1,-1.10000000000000,-1.55000000000000,-1.15000000000000,-1,-1.10000000000000,-1.95000000000000,-5.70000000000000,-6.30000000000000,-9.10000000000000,-5.65000000000000,-4.55000000000000,-3.90000000000000,-3.15000000000000,-5.15000000000000];
 
     % wind2
     scale2 = 0;
@@ -227,14 +230,14 @@
     EP=[sum(pg)-sum(loads)+wf-PA(1,:)>=0];   %note
 %% DISCO1 Constraints
     CDA = [ pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
-%     CDA = [CDA,PAdn<=PA<=PAup];
-%    for i = 1:dbusA-1
-%        if i ~= dbusA-1
-%            CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:)];
-%        else
-%            CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:) + dgA];
-%        end
-%    end  
+    CDA = [CDA,PAdn<=PA<=PAup];
+   for i = 1:dbusA-1
+       if i ~= dbusA-1
+           CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:)];
+       else
+           CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:) + dgA];
+       end
+   end  
     CDA = [CDA,PA(1,:) >= sum(pdA + pdA1)]; 
 %% Transmission Objective
     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc+sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note
@@ -249,17 +252,23 @@
 %    value(drdnA)
    TransAvg = value(OO+O1+O2)
    pene2 = (max(value(windup))+max(value(wf)))/149
-   EnergyPrice = dual(EP);
+   EnergyPrice = dual(EP)'
    ConPrice = dual(CP);
 %% DISCO1 Objective
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
-         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice+ PA(1,:)*EnergyPrice 
+         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice'+ PA(1,:)*EnergyPrice' 
    sum(sum(drupA+drdnA))
    sum(PA(1,:))
    disp('total windup')
    sum(windup)
    disp('total winddown')
    sum(winddown)
+   disp('energy price')
+   EnergyPrice = dual(EP)'
+   disp('drup')
+   value(sum(drupA))
+   disp('drdn')
+   value(sum(drdnA))
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;

@@ -28,7 +28,8 @@
     Conoff=2*ones(1,ng);    
 %% DISCO1 System Parameters
    dbusA = 6;
-   total = [0, 4, 5, 0, 4, 2];
+   total = [0, 100, 90, 120, 60, 0, 200,200,60,60,45,60,60,120,60,60,60,90,90,90,90,90,90,...
+       420,420,60,0,60,120,200,150,210,60];
    total = repmat(total',1,nt);
    dssize = 1;
    
@@ -42,7 +43,7 @@
    pdA1dn = 0.00001*total*dssize;
    pdA = total-pdA1up;
    CpdA1 = 3;
-   PAup = 20;
+   PAup = repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
    PAdn = 0;
    dgA = sdpvar(1,nt,'full');
    dgAup = 0;
@@ -110,6 +111,9 @@
     wf1 = scale*(wf1);
     windup1 = scale*(windup1);
     winddown1 = scale*(winddown1);
+    
+    windup1 = [2.14850277468970,2.38176933526874,1.74677853896453,2.60511542849926,2.35355880939503,2.41625640922597,9.26333481098347,4.72603747192732,3.64443832323432,3.54370589728489,3.77247031861537,5.32507128646877,3.89024919339414,3.43366439452552,3.79975232769689,5.91542122062703,18.0071565379186,20.3629232486021,27.8562658759252,16.9300600310706,14.6166013530343,12.8505562939878,9.60886741793157,16.5816874966563];
+    winddown1 = [-2.29653290221721,-2.29980619610469,-1.86455639333191,-1.35000000000000,-1,-1,-3.40000000000000,-1.45000000000000,-1.05000000000000,-1,-1.10000000000000,-1.55000000000000,-1.15000000000000,-1,-1.10000000000000,-1.95000000000000,-5.70000000000000,-6.30000000000000,-9.10000000000000,-5.65000000000000,-4.55000000000000,-3.90000000000000,-3.15000000000000,-5.15000000000000];
 
     % wind2
     scale2 = 0;
@@ -311,12 +315,13 @@
 %    optimize([CDA,ST,bigM,DF],0)
 %    CpdA1 = 0;
    dual = -sum(dgA.*dgA)*cd2A- sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2-sum(sum(pdA1.*pdA1)*CpdA1)+...
-       sum(sum(pdA(2:6,:).*mu1A)+sum(l3A*PAdn-l4A*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up)-l2A*dgAup)
+       sum(sum(pdA(2:6,:).*mu1A)+sum(l3A*PAdn-l4A.*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up)-l2A*dgAup)
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +sum(dgA')*cd1A +...
    sum(dgA'.*dgA')*cd2A  + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drpA.*sum(drupA+drdnA))+ sum(PA(1,:).*cimA) 
    
    O2 = dual-(sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +sum(dgA')*cd1A...
        + sum(dgA'.*dgA')*cd2A + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum((pdA1up).*(pdA1up)))*CpdA1)
+%    O2 = O2-(sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2)
    
    optimize([CDA,ST,bigM,DF,CO],OO+O1-O2) % note -10000*scale
 %    value(cimA)
@@ -329,7 +334,19 @@
    pene2 = (max(value(windup))+max(value(wf)))/149
    sum(sum(drupA+drdnA))
    sum(PA(1,:))
-    % MGAvg = mean(MGcost)
+   OD1
+   OO+O1 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
+   sum(PA(1,:))
+%    disp('total windup')
+%    sum(windup)
+%    disp('total winddown')
+%    sum(winddown)
+%    disp('energy price')
+%    EnergyPrice = value(cimA)
+%    disp('drup')
+%    value(sum(drupA))
+%    disp('drdn')
+%    value(sum(drdnA))
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;
