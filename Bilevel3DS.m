@@ -19,8 +19,8 @@
     wbus1 = 5; % bus for wind1
     wbus2 = 4; % bus for wind1
     dbus1 = 5; % note
-    mbus2 = 15; % note
-    mbus3 = 8; % note
+    dbus2 = 15; % note
+    dbus3 = 8; % note
     wc = 1000; % wind spill cost
     lc = 1000; % load shedding cost
     GSF = makePTDF(mpc.baseMVA, mpc.bus, mpc.branch, bus);
@@ -31,11 +31,8 @@
    total = [0, 4, 5, 0, 4, 2];
    total = repmat(total',1,nt);
    dssize = 1;
-   
    cd2A = 0.02;
-   cd1A = 5;
-%    cd2A = 0.0;
-%    cd1A = 0;   
+   cd1A = 5;  
    PA = sdpvar(dbusA,nt,'full');
    pdA1 = sdpvar(dbusA,nt,'full');
    pdA1up = total*dssize;
@@ -49,17 +46,61 @@
    dgAdn = 0;
    drupA = sdpvar(dbusA,nt,'full');
    drdnA = sdpvar(dbusA,nt,'full');
-%    drA1 = 1;
-%    drA2 = 1;
    drA1 = 1;
    drA2 = 1;
    drscale = 0.5;
+ %% DISCO2 System Parameters
+   dbusB = 6;
+   totalB = [0, 4, 5, 0, 4, 2];
+   totalB = repmat(totalB',1,nt);
+   dssizeB = 1;
+   cd2B = 0.02;
+   cd1B = 5;  
+   PB = sdpvar(dbusB,nt,'full');
+   pdB1 = sdpvar(dbusB,nt,'full');
+   pdB1up = totalB*dssizeB;
+   pdB1dn = 0.00001*totalB*dssizeB;
+   pdB = totalB-pdB1up;
+   CpdB1 = 3;
+   PBup = repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
+   PBdn = 0;
+   dgB = sdpvar(1,nt,'full');
+   dgBup = 0;
+   dgBdn = 0;
+   drupB = sdpvar(dbusB,nt,'full');
+   drdnB = sdpvar(dbusB,nt,'full');
+   drB1 = 1;
+   drB2 = 1;
+   drscaleB = 0.5;
+%% EISCO3 System Parameters
+   dbusE = 6;
+   totalE = [0, 4, 5, 0, 4, 2];
+   totalE = repmat(totalE',1,nt);
+   dssizeE = 1;
+   cd2E = 0.02;
+   cd1E = 5;  
+   PE = sdpvar(dbusE,nt,'full');
+   pdE1 = sdpvar(dbusE,nt,'full');
+   pdE1up = totalE*dssizeE;
+   pdE1dn = 0.00001*totalE*dssizeE;
+   pdE = totalE-pdE1up;
+   CpdE1 = 3;
+   PEup = repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
+   PEdn = 0;
+   dgE = sdpvar(1,nt,'full');
+   dgEup = 0;
+   dgEdn = 0;
+   drupE = sdpvar(dbusE,nt,'full');
+   drdnE = sdpvar(dbusE,nt,'full');
+   drE1 = 1;
+   drE2 = 1;
+   drscaleE = 0.5;
 %% Wind Forecast and Scenarios
     %wind forecast
     wl = 1; % wind penetration scaling factor
     load('ObsDays.mat');
     k = 54;
-    wf1=wl*ObsDays(k,:,11)+2;
+    wf1=wl*ObsDays(k,:,11)+6;
     corr1=corrcoef(ObsDays(:,:,11));
     std_dev = [0.12,0.15,0.18,0.5,0.6,0.67,0.72,0.76,0.79,0.82,0.83,0.8315,0.833,0.835,0.836,0.838,0.839,0.841,0.842,0.844,0.845,0.847,0.848,0.85];
     for j=1:nt
@@ -151,7 +192,11 @@
     Pdrmax = 10;
     
     cimA = sdpvar(1,nt,'full'); %note
+    cimB = sdpvar(1,nt,'full'); %note
+    cimE = sdpvar(1,nt,'full'); %note
     drpA = sdpvar(1,nt,'full'); %note
+    drpB = sdpvar(1,nt,'full'); %note
+    drpE = sdpvar(1,nt,'full'); %note
     % LB & UB 
     CO = [Gmin<=pg<=Gmax,0<=Pdr<=Pdrmax,0<=rgup<=Rgmax,0<=rgdn<=Rgmax,Pimmin<=Pim<=Pimmax,0<=cimA<=30,0<=drpA<=10];      
     %% Transmission Constraints
@@ -172,6 +217,10 @@
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
+          elseif genvec(i) == dbus2
+              CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)];%note
+          elseif genvec(i) == dbus3
+              CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
           end
@@ -192,6 +241,10 @@
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
+          elseif genvec(i) == dbus2
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+drdnB];%note
+          elseif genvec(i) == dbus3
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+drdnE];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -212,6 +265,10 @@
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
           elseif genvec(i) == dbus1
               CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
+          elseif genvec(i) == dbus2
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-drupB];%note
+          elseif genvec(i) == dbus3
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-drupE];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end
@@ -232,7 +289,7 @@
     % Generator Constraints
     CO=[CO,-Rdn(:,2:nt)<=pg(:,2:nt)-pg(:,1:nt-1)<=Rup(:,2:nt)]; % ramping CO
 
-    CO=[CO,sum(pg)-sum(loads)+wf-PA(1,:)==0];   %note
+    CO=[CO,sum(pg)-sum(loads)+wf-PA(1,:)-PB(1,:)-PE(1,:)==0];   %note
     %% DISCO1 Constraints
   CDA = [dgAdn<=dgA<=dgAup, PAdn<=PA<=PAup, pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
    for i = 1:dbusA-1
@@ -245,7 +302,6 @@
    
    mu1A = sdpvar(5,nt,'full'); 
    bigM = [];
-   DC = [];
    ST = [];
    l1A = sdpvar(1,nt,'full'); 
    b1A = binvar(1,nt,'full'); 
@@ -306,13 +362,151 @@
        2*CpdA1*pdA1(2:6,:)-2*CpdA1*pdA1up(2:6,:)+mu1A+l6A(2:6,:)-l5A(2:6,:)-drscale*l8A(2:6,:)-drscale*l10A(2:6,:) == 0];%pdA1      
    ST = [ST,2*drA2*drupA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l8A-l7A == 0,2*drA2*drdnA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l10A-l9A == 0];%drup,drdn
    ST = [ST,cimA == drpA];%dgA
+ %% DISCO2 Constraints
+  CDB = [dgBdn<=dgB<=dgBup, PBdn<=PB<=PBup, pdB1dn<=pdB1<=pdB1up, 0<=drupB<=drscale*pdB1, 0<=drdnB<=drscale*pdB1];
+   for i = 1:dbusB-1
+       if i ~= dbusB-1
+           CDB = [CDB, PB(i+1,:) == PB(i,:) - pdB(i+1,:) - pdB1(i+1,:)];
+       else
+           CDB = [CDB, PB(i+1,:) == PB(i,:) - pdB(i+1,:) - pdB1(i+1,:) + dgB];
+       end
+   end  
+   
+   mu1B = sdpvar(5,nt,'full'); 
+   l1B = sdpvar(1,nt,'full'); 
+   b1B = binvar(1,nt,'full'); 
+   m1B = 10000000;
+%    DC = [DC,l1B.*(dgB-dgBdn) == 0];
+   bigM = [bigM, l1B<=m1B*b1B, dgB-dgBdn<=m1B*(1-b1B)];
+   
+   l2B = sdpvar(1,nt,'full');  
+   b2B = binvar(1,nt,'full');
+%    DC = [DC,l2B.*(dgB-dgBup) == 0];
+   bigM = [bigM, l2B<=m1B*b2B, -dgB+dgBup<=m1B*(1-b2B)];
+   
+   l3B = sdpvar(dbusB,nt,'full'); 
+   b3B = binvar(dbusB,nt,'full'); 
+%    DC = [DC,l3B.*(PB-PBdn) == 0];
+   bigM = [bigM, l3B<=m1B*b3B, PB-PBdn<=m1B*(1-b3B)];
+   
+   l4B = sdpvar(dbusB,nt,'full');  
+   b4B = binvar(dbusB,nt,'full');
+%    DC = [DC,l4B.*(PB-PBup) == 0];
+   bigM = [bigM, l4B<=m1B*b4B, -PB+PBup<=m1B*(1-b4B)];
+   
+   l5B = sdpvar(dbusB,nt,'full'); 
+   b5B = binvar(dbusB,nt,'full'); 
+%    DC = [DC,l5B.*(pdB1-pdB1dn) == 0];
+   bigM = [bigM, l5B<=m1B*b5B, pdB1-pdB1dn<=m1B*(1-b5B)];
+   
+   l6B = sdpvar(dbusB,nt,'full');  
+   b6B = binvar(dbusB,nt,'full');
+%    DC = [DC,l6B.*(pdB1-pdB1up) == 0];
+   bigM = [bigM, l6B<=m1B*b6B, -pdB1+pdB1up<=m1B*(1-b6B)];
+   
+   l7B = sdpvar(dbusB,nt,'full'); 
+   b7B = binvar(dbusB,nt,'full'); 
+%    DC = [DC,l7B.*(drupB) == 0];
+   bigM = [bigM, l7B<=m1B*b7B, drupB<=m1B*(1-b7B)];
+   
+   l8B = sdpvar(dbusB,nt,'full');  
+   b8B = binvar(dbusB,nt,'full');
+%    DC = [DC,l8B.*(drupB-drscale*pdB1) == 0];
+   bigM = [bigM, l8B<=m1B*b8B, -drupB+drscale*pdB1<=m1B*(1-b8B)];
+   
+   l9B = sdpvar(dbusB,nt,'full'); 
+   b9B = binvar(dbusB,nt,'full'); 
+%    DC = [DC,l9B.*(drdnB) == 0];
+   bigM = [bigM, l9B<=m1B*b9B, drdnB<=m1B*(1-b9B)];
+   
+   l10B = sdpvar(dbusB,nt,'full');  
+   b10B = binvar(dbusB,nt,'full');
+%    DC = [DC,l10B.*(drdnB-drscale*pdB1) == 0];
+   bigM = [bigM, l10B<=m1B*b10B, -drdnB+drscale*pdB1<=m1B*(1-b10B)];
+ 
+   DF = [DF,l1B>=0,l2B>=0,l3B>=0,l4B>=0,l5B>=0,l6B>=0,l7B>=0,l8B>=0,l9B>=0,l10B>=0];
+   ST = [ST,2*cd2B*dgB+cd1B*ones(1,nt)+l2B-l1B-mu1B(5,:) == 0];%dgB
+   ST = [ST,cimB-mu1B(1,:)+l4B(1,:)-l3B(1,:)==0, mu1B(1,:)-mu1B(2,:)+l4B(2,:)-l3B(2,:) == 0, mu1B(2,:)-mu1B(3,:)+l4B(3,:)-l3B(3,:) == 0,...
+       mu1B(3,:)-mu1B(4,:)+l4B(4,:)-l3B(4,:) == 0, mu1B(4,:)-mu1B(5,:)+l4B(5,:)-l3B(5,:) == 0, mu1B(5,:)+l4B(6,:)-l3B(6,:) == 0];%PB
+   ST = [ST,2*CpdB1*pdB1(1,:)-2*CpdB1*pdB1up(1,:)+l6B(1,:)-l5B(1,:)-drscale*l8B(1,:)-drscale*l10B(1,:) == 0,...
+       2*CpdB1*pdB1(2:6,:)-2*CpdB1*pdB1up(2:6,:)+mu1B+l6B(2:6,:)-l5B(2:6,:)-drscale*l8B(2:6,:)-drscale*l10B(2:6,:) == 0];%pdB1      
+   ST = [ST,2*drB2*drupB+(drB1)*ones(dbusB,nt)-repmat(drpB,dbusB,1)+l8B-l7B == 0,2*drB2*drdnB+(drB1)*ones(dbusB,nt)-repmat(drpB,dbusB,1)+l10B-l9B == 0];%drup,drdn
+   ST = [ST,cimB == drpB];%dgB
+ %% DISCO3 Constraints
+  CDE = [dgEdn<=dgE<=dgEup, PEdn<=PE<=PEup, pdE1dn<=pdE1<=pdE1up, 0<=drupE<=drscale*pdE1, 0<=drdnE<=drscale*pdE1];
+   for i = 1:dbusE-1
+       if i ~= dbusE-1
+           CDE = [CDE, PE(i+1,:) == PE(i,:) - pdE(i+1,:) - pdE1(i+1,:)];
+       else
+           CDE = [CDE, PE(i+1,:) == PE(i,:) - pdE(i+1,:) - pdE1(i+1,:) + dgE];
+       end
+   end  
+   
+   mu1E = sdpvar(5,nt,'full'); 
+   l1E = sdpvar(1,nt,'full'); 
+   b1E = binvar(1,nt,'full'); 
+   m1E = 10000000;
+%    DC = [DC,l1E.*(dgE-dgEdn) == 0];
+   bigM = [bigM, l1E<=m1E*b1E, dgE-dgEdn<=m1E*(1-b1E)];
+   
+   l2E = sdpvar(1,nt,'full');  
+   b2E = binvar(1,nt,'full');
+%    DC = [DC,l2E.*(dgE-dgEup) == 0];
+   bigM = [bigM, l2E<=m1E*b2E, -dgE+dgEup<=m1E*(1-b2E)];
+   
+   l3E = sdpvar(dbusE,nt,'full'); 
+   b3E = binvar(dbusE,nt,'full'); 
+%    DC = [DC,l3E.*(PE-PEdn) == 0];
+   bigM = [bigM, l3E<=m1E*b3E, PE-PEdn<=m1E*(1-b3E)];
+   
+   l4E = sdpvar(dbusE,nt,'full');  
+   b4E = binvar(dbusE,nt,'full');
+%    DC = [DC,l4E.*(PE-PEup) == 0];
+   bigM = [bigM, l4E<=m1E*b4E, -PE+PEup<=m1E*(1-b4E)];
+   
+   l5E = sdpvar(dbusE,nt,'full'); 
+   b5E = binvar(dbusE,nt,'full'); 
+%    DC = [DC,l5E.*(pdE1-pdE1dn) == 0];
+   bigM = [bigM, l5E<=m1E*b5E, pdE1-pdE1dn<=m1E*(1-b5E)];
+   
+   l6E = sdpvar(dbusE,nt,'full');  
+   b6E = binvar(dbusE,nt,'full');
+%    DC = [DC,l6E.*(pdE1-pdE1up) == 0];
+   bigM = [bigM, l6E<=m1E*b6E, -pdE1+pdE1up<=m1E*(1-b6E)];
+   
+   l7E = sdpvar(dbusE,nt,'full'); 
+   b7E = binvar(dbusE,nt,'full'); 
+%    DC = [DC,l7E.*(drupE) == 0];
+   bigM = [bigM, l7E<=m1E*b7E, drupE<=m1E*(1-b7E)];
+   
+   l8E = sdpvar(dbusE,nt,'full');  
+   b8E = binvar(dbusE,nt,'full');
+%    DC = [DC,l8E.*(drupE-drscale*pdE1) == 0];
+   bigM = [bigM, l8E<=m1E*b8E, -drupE+drscale*pdE1<=m1E*(1-b8E)];
+   
+   l9E = sdpvar(dbusE,nt,'full'); 
+   b9E = binvar(dbusE,nt,'full'); 
+%    DC = [DC,l9E.*(drdnE) == 0];
+   bigM = [bigM, l9E<=m1E*b9E, drdnE<=m1E*(1-b9E)];
+   
+   l10E = sdpvar(dbusE,nt,'full');  
+   b10E = binvar(dbusE,nt,'full');
+%    DC = [DC,l10E.*(drdnE-drscale*pdE1) == 0];
+   bigM = [bigM, l10E<=m1E*b10E, -drdnE+drscale*pdE1<=m1E*(1-b10E)];
+ 
+   DF = [DF,l1E>=0,l2E>=0,l3E>=0,l4E>=0,l5E>=0,l6E>=0,l7E>=0,l8E>=0,l9E>=0,l10E>=0];
+   ST = [ST,2*cd2E*dgE+cd1E*ones(1,nt)+l2E-l1E-mu1E(5,:) == 0];%dgE
+   ST = [ST,cimE-mu1E(1,:)+l4E(1,:)-l3E(1,:)==0, mu1E(1,:)-mu1E(2,:)+l4E(2,:)-l3E(2,:) == 0, mu1E(2,:)-mu1E(3,:)+l4E(3,:)-l3E(3,:) == 0,...
+       mu1E(3,:)-mu1E(4,:)+l4E(4,:)-l3E(4,:) == 0, mu1E(4,:)-mu1E(5,:)+l4E(5,:)-l3E(5,:) == 0, mu1E(5,:)+l4E(6,:)-l3E(6,:) == 0];%PE
+   ST = [ST,2*CpdE1*pdE1(1,:)-2*CpdE1*pdE1up(1,:)+l6E(1,:)-l5E(1,:)-drscale*l8E(1,:)-drscale*l10E(1,:) == 0,...
+       2*CpdE1*pdE1(2:6,:)-2*CpdE1*pdE1up(2:6,:)+mu1E+l6E(2:6,:)-l5E(2:6,:)-drscale*l8E(2:6,:)-drscale*l10E(2:6,:) == 0];%pdE1      
+   ST = [ST,2*drE2*drupE+(drE1)*ones(dbusE,nt)-repmat(drpE,dbusE,1)+l8E-l7E == 0,2*drE2*drdnE+(drE1)*ones(dbusE,nt)-repmat(drpE,dbusE,1)+l10E-l9E == 0];%drup,drdn
+   ST = [ST,cimE == drpE];%dgE
 %% Transmission Objective
-    OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc+sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note
+    OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA)-sum(drupB)-sum(drupE))*wc...
+        +sum(-winddown-sum(rgup)-sum(drdnA)-sum(drdnB)-sum(drdnE))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
 %% Solve Problem
-%    optimize([CDA],OD1)
-%    optimize([CDA,ST,bigM,DF],0)
-%    CpdA1 = 0;
    dual = -sum(dgA.*dgA)*cd2A- sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2-sum(sum(pdA1.*pdA1)*CpdA1)+...
        sum(sum(pdA(2:6,:).*mu1A)+sum(l3A*PAdn-l4A.*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up)-l2A*dgAup)
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +sum(dgA')*cd1A +...
@@ -320,15 +514,30 @@
    
    O2 = dual-(sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +sum(dgA')*cd1A...
        + sum(dgA'.*dgA')*cd2A + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum((pdA1up).*(pdA1up)))*CpdA1)
-%    O2 = O2-(sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2)
    
-   optimize([CDA,ST,bigM,DF,CO],OO+O1-O2) % note -10000*scale
+   dualB = -sum(dgB.*dgB)*cd2B- sum(sum(drupB'.*drupB'+drdnB'.*drdnB'))*drB2-sum(sum(pdB1.*pdB1)*CpdB1)+...
+       sum(sum(pdB(2:6,:).*mu1B)+sum(l3B*PBdn-l4B.*PBup)+sum(l5B.*pdB1dn-l6B.*pdB1up)-l2B*dgBup)
+   OD1B = sum(sum(drupB'+drdnB'))*drB1 + sum(sum(drupB'.*drupB'+drdnB'.*drdnB'))*drB2 +sum(dgB')*cd1B +...
+   sum(dgB'.*dgB')*cd2B  + sum(sum((pdB1up-pdB1).*(pdB1up-pdB1)))*CpdB1 - sum(sum(pdB1up.*pdB1up))*CpdB1-sum(drpB.*sum(drupB+drdnB))+ sum(PB(1,:).*cimB) 
+   
+   O2B = dual-(sum(sum(drupB'+drdnB'))*drB1 + sum(sum(drupB'.*drupB'+drdnB'.*drdnB'))*drB2 +sum(dgB')*cd1B...
+       + sum(dgB'.*dgB')*cd2B + sum(sum((pdB1up-pdB1).*(pdB1up-pdB1)))*CpdB1 - sum(sum((pdB1up).*(pdB1up)))*CpdB1)
+   
+   dualE = -sum(dgE.*dgE)*cd2E- sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2-sum(sum(pdE1.*pdE1)*CpdE1)+...
+       sum(sum(pdE(2:6,:).*mu1E)+sum(l3E*PEdn-l4E.*PEup)+sum(l5E.*pdE1dn-l6E.*pdE1up)-l2E*dgEup)
+   OD1E = sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2 +sum(dgE')*cd1E +...
+   sum(dgE'.*dgE')*cd2E  + sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 - sum(sum(pdE1up.*pdE1up))*CpdE1-sum(drpE.*sum(drupE+drdnE))+ sum(PE(1,:).*cimE) 
+   
+   O2E = dual-(sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2 +sum(dgE')*cd1E...
+       + sum(dgE'.*dgE')*cd2E + sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 - sum(sum((pdE1up).*(pdE1up)))*CpdE1)
+   
+   optimize([CDA,CDB,CDE,ST,bigM,DF,CO],OO+O1-O2-O2B-O2E) % note -10000*scale
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
 %    value(drupA)
 %    value(drdnA)
-   TransAvg = value(OO+O1-O2)
+   TransAvg = value(OO+O1-O2-O2B-O2E)
     % pene1 = max(value(wf))/149
    pene2 = (max(value(windup))+max(value(wf)))/149
    sum(sum(drupA+drdnA))
