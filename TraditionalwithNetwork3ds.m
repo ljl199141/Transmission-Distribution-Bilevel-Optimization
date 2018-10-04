@@ -18,9 +18,9 @@
     loads(8,:) = 0;
     wbus1 = 5; % bus for wind1
     wbus2 = 4; % bus for wind1
-    dbus1 = 15; % note
-    dbus2 = 5; % note
-    dbus3 = 15; % note
+    dbus1 = 25; % note
+    dbus2 = 15; % note
+    dbus3 = 25; % note
     wc = 1000; % wind spill cost
     lc = 1000; % load shedding cost
     GSF = makePTDF(mpc.baseMVA, mpc.bus, mpc.branch, bus);
@@ -211,12 +211,12 @@
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf1];
           elseif genvec(i) == wbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
-%           elseif genvec(i) == dbus1
-%               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
+          elseif genvec(i) == dbus1
+              CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
           elseif genvec(i) == dbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
+%           elseif genvec(i) == dbus3
+%               CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
           end
@@ -235,12 +235,12 @@
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf1+winddown1];
           elseif genvec(i) == wbus2
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
-%           elseif genvec(i) == dbus1
-%               CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
+          elseif genvec(i) == dbus1
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
           elseif genvec(i) == dbus2
               CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+drdnB];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+drdnE];%note
+%           elseif genvec(i) == dbus3
+%               CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+drdnE];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -259,12 +259,12 @@
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf1+windup1];
           elseif genvec(i) == wbus2
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
-%           elseif genvec(i) == dbus1
-%               CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
+          elseif genvec(i) == dbus1
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
           elseif genvec(i) == dbus2
               CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-drupB];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-drupE];%note
+%           elseif genvec(i) == dbus3
+%               CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-drupE];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end
@@ -280,14 +280,14 @@
     CO = [CO,pg+rgup<=Gmax.*onoff,Gmin.*onoff<=pg-rgdn]; 
     CO = [CO,(pg(:,2:nt)+rgup(:,2:nt))-(pg(:,1:nt-1)-rgdn(:,1:nt-1))<=Rup(:,2:nt)]; % Up ramping Constraints with Rgs
     CO = [CO,-Rdn(:,2:nt)<=(pg(:,2:nt)-rgdn(:,2:nt))-(pg(:,1:nt-1)+rgup(:,1:nt-1))]; % Dn Ramping Constraints with Rgs
-    CO = [CO,windup-sum(rgdn)-sum(drupB)-sum(drupE)==0,-winddown-sum(rgup)-sum(drdnB)-sum(drdnE)==0]; % note
+    CO = [CO,windup-sum(rgdn)-sum(drupB)-sum(drupA)==0,-winddown-sum(rgup)-sum(drdnB)-sum(drdnA)==0]; % note
 %     CO = [CO,windup-sum(rgdn)-sum(drupA)-sum(drupB)-sum(drupE)==0,-winddown-sum(rgup)-sum(drdnA)-sum(drdnB)-sum(drdnE)==0]; % note
     % Generator Constraints
     CO = [CO,-Rdn(:,2:nt)<=pg(:,2:nt)-pg(:,1:nt-1)<=Rup(:,2:nt)]; % ramping CO
 
 %     EP=[sum(pg)-sum(loads)+wf-PA(1,:)-PB(1,:)-PE(1,:)>=0];   %note
 
-    EP = [sum(pg)-sum(loads)+wf-PB(1,:)-PE(1,:)>=0];   %note
+    EP = [sum(pg)-sum(loads)+wf-PB(1,:)-PA(1,:)>=0];   %note
 %% DISCO1 Constraints
    CDA = [PAdn<=PA<=PAup, pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
    for i = 1:dbusA-1
@@ -321,8 +321,8 @@
 %% Transmission Objective
 %     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA)-sum(drupB)-sum(drupE))*wc+...
 %         sum(-winddown-sum(rgup)-sum(drdnA)-sum(drdnB)-sum(drdnE))*lc;%note
-    OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupB)-sum(drupE))*wc+...
-    sum(-winddown-sum(rgup)-sum(drdnB)-sum(drdnE))*lc;%note
+    OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupB)-sum(drupA))*wc+...
+    sum(-winddown-sum(rgup)-sum(drdnB)-sum(drdnA))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
 
     O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
@@ -330,15 +330,15 @@
     O4 = sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 - sum(sum(pdE1up.*pdE1up))*CpdE1 + sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2
 %% Solve Problem
 %    optimize([CDA,CDB,CDE,CO,EP,CP],OO+O1+O2+03+04) % note -10000*scale +O3+O4
-optimize([CDB,CDE,CO,EP,CP],OO+O1+O3+O4) % note -10000*scale +O3+O4
+optimize([CDB,CDA,CO,EP,CP],OO+O1+O3+O2) % note -10000*scale +O3+O4
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
 %    value(drupA)
 %    value(drdnA)
-   TransAvg = value(OO+O1+O3+O4)
-   pene2 = (max(value(windup))+max(value(wf)))/149
-   EnergyPrice = dual(EP)'
+   TransAvg = value(OO+O1+O3+O2)
+%    pene2 = (max(value(windup))+max(value(wf)))/149
+   EnergyPrice = dual(EP)';
    ConPrice = dual(CP);
 %% DISCO1 Objective
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
@@ -347,18 +347,18 @@ optimize([CDB,CDE,CO,EP,CP],OO+O1+O3+O4) % note -10000*scale +O3+O4
          sum(sum(pdB1up.*pdB1up))*CpdB1-sum(drupB+drdnB)*EnergyPrice'+ PB(1,:)*EnergyPrice'
    OD3 = sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2 + sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 -...
          sum(sum(pdE1up.*pdE1up))*CpdE1-sum(drupE+drdnE)*EnergyPrice'+ PE(1,:)*EnergyPrice' 
-   sum(sum(drupA+drdnA))
-   sum(PA(1,:))
-   disp('total windup')
-   sum(windup)
-   disp('total winddown')
-   sum(winddown)
-   disp('energy price')
-   EnergyPrice = dual(EP)'
-   disp('drup')
-   value(sum(drupA))
-   disp('drdn')
-   value(sum(drdnA))
+%    sum(sum(drupA+drdnA))
+%    sum(PA(1,:))
+%    disp('total windup')
+%    sum(windup)
+%    disp('total winddown')
+%    sum(winddown)
+%    disp('energy price')
+%    EnergyPrice = dual(EP)'
+%    disp('drup')
+%    value(sum(drupA))
+%    disp('drdn')
+%    value(sum(drdnA))
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;
