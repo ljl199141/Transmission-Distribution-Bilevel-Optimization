@@ -16,7 +16,7 @@
     loads=loads.*sf;
     loads(2,:) = 0;
     loads(8,:) = 0;
-    wbus1 = 5; % bus for wind1
+    wbus1 = 6; % bus for wind1
     wbus2 = 4; % bus for wind1
     dbus1 = 5; % note
     dbus2 = 15; % note

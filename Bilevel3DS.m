@@ -16,9 +16,9 @@
     loads=loads.*sf;
     loads(2,:) = 0;
     loads(8,:) = 0;
-    wbus1 = 5; % bus for wind1
+    wbus1 = 6; % bus for wind1
     wbus2 = 4; % bus for wind1
-    dbus1 = 5; % note
+    dbus1 = 25; % note
     dbus2 = 5; % note
     dbus3 = 5; % note
     wc = 1000; % wind spill cost
