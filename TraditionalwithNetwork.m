@@ -16,7 +16,7 @@
     loads=loads.*sf;
     loads(2,:) = 0;
     loads(8,:) = 0;
-    wbus1 = 5; % bus for wind1
+    wbus1 = 6; % bus for wind1
     wbus2 = 4; % bus for wind1
     dbus1 = 5; % note
     mbus2 = 15; % note
@@ -161,11 +161,11 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
-          elseif genvec(i) == dbus1
+          elseif i == dbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
@@ -181,12 +181,12 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf1+winddown1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
-          elseif genvec(i) == dbus1
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
+          elseif i == dbus1
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+sum(drdnA)];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -201,12 +201,12 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf1+windup1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
-          elseif genvec(i) == dbus1
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
+          elseif i == dbus1
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-sum(drupA)];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end
@@ -251,24 +251,24 @@
 %    value(drupA)
 %    value(drdnA)
    TransAvg = value(OO+O1+O2)
-   pene2 = (max(value(windup))+max(value(wf)))/149
-   EnergyPrice = dual(EP)'
+   pene2 = (max(value(windup))+max(value(wf)))/149;
+   EnergyPrice = dual(EP)';
    ConPrice = dual(CP);
 %% DISCO1 Objective
    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
          sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice'+ PA(1,:)*EnergyPrice' 
    sum(sum(drupA+drdnA))
    sum(PA(1,:))
-   disp('total windup')
-   sum(windup)
-   disp('total winddown')
-   sum(winddown)
-   disp('energy price')
-   EnergyPrice = dual(EP)'
-   disp('drup')
-   value(sum(drupA))
-   disp('drdn')
-   value(sum(drdnA))
+%    disp('total windup')
+%    sum(windup)
+%    disp('total winddown')
+%    sum(winddown)
+%    disp('energy price')
+%    EnergyPrice = dual(EP)'
+%    disp('drup')
+%    value(sum(drupA))
+%    disp('drdn')
+%    value(sum(drdnA))
 %% Plots
     % MG Gen VS Load:
 %     t = 1:nt;

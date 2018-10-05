@@ -42,7 +42,7 @@
    PAup = 1*repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
    PAdn = 0;
    dgA = sdpvar(1,nt,'full');
-   dgAup = 10;
+   dgAup = 0;
    dgAdn = 0;
    drupA = sdpvar(dbusA,nt,'full');
    drdnA = sdpvar(dbusA,nt,'full');
@@ -65,7 +65,7 @@
    PBup = 1*repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
    PBdn = 0;
    dgB = sdpvar(1,nt,'full');
-   dgBup = 10;
+   dgBup = 0;
    dgBdn = 0;
    drupB = sdpvar(dbusB,nt,'full');
    drdnB = sdpvar(dbusB,nt,'full');
@@ -88,7 +88,7 @@
    PEup = 1*repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
    PEdn = 0;
    dgE = sdpvar(1,nt,'full');
-   dgEup = 10;
+   dgEup = 0;
    dgEdn = 0;
    drupE = sdpvar(dbusE,nt,'full');
    drdnE = sdpvar(dbusE,nt,'full');
@@ -207,15 +207,15 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
-          elseif genvec(i) == dbus1
+          elseif i == dbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
-          elseif genvec(i) == dbus2
+          elseif i == dbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)];%note
-          elseif genvec(i) == dbus3
+          elseif i == dbus3
               CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
@@ -231,16 +231,16 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf1+winddown1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
-          elseif genvec(i) == dbus1
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
-          elseif genvec(i) == dbus2
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+drdnB];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+drdnE];%note
+          elseif i == dbus1
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+sum(drdnA)];%note
+          elseif i == dbus2
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+sum(drdnB)];%note
+          elseif i == dbus3
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+sum(drdnE)];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -255,16 +255,16 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf1+windup1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
-          elseif genvec(i) == dbus1
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
-          elseif genvec(i) == dbus2
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-drupB];%note
-          elseif genvec(i) == dbus3
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-drupE];%note
+          elseif i == dbus1
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-sum(drupA)];%note
+          elseif i == dbus2
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-sum(drupB)];%note
+          elseif i == dbus3
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-sum(drupE)];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end

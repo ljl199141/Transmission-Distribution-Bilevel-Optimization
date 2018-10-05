@@ -16,7 +16,7 @@
     loads=loads.*sf;
     loads(2,:) = 0;
     loads(8,:) = 0;
-    wbus1 = 5; % bus for wind1
+    wbus1 = 6; % bus for wind1
     wbus2 = 4; % bus for wind1
     dbus1 = 5; % note
     mbus2 = 15; % note
@@ -106,6 +106,9 @@
     wf1 = scale*(wf1);
     windup1 = scale*(windup1);
     winddown1 = scale*(winddown1);
+    
+    windup1 = [2.14850277468970,2.38176933526874,1.74677853896453,2.60511542849926,2.35355880939503,2.41625640922597,9.26333481098347,4.72603747192732,3.64443832323432,3.54370589728489,3.77247031861537,5.32507128646877,3.89024919339414,3.43366439452552,3.79975232769689,5.91542122062703,18.0071565379186,20.3629232486021,27.8562658759252,16.9300600310706,14.6166013530343,12.8505562939878,9.60886741793157,16.5816874966563];
+    winddown1 = [-2.29653290221721,-2.29980619610469,-1.86455639333191,-1.35000000000000,-1,-1,-3.40000000000000,-1.45000000000000,-1.05000000000000,-1,-1.10000000000000,-1.55000000000000,-1.15000000000000,-1,-1.10000000000000,-1.95000000000000,-5.70000000000000,-6.30000000000000,-9.10000000000000,-5.65000000000000,-4.55000000000000,-3.90000000000000,-3.15000000000000,-5.15000000000000];
 
     % wind2
     scale2 = 0;
@@ -158,11 +161,11 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
-          elseif genvec(i) == dbus1
+          elseif i == dbus1
               CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
@@ -178,12 +181,12 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf1+winddown1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
-          elseif genvec(i) == dbus1
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+drdnA];%note
+          elseif i == dbus1
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+sum(drdnA)];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -198,12 +201,12 @@
     count = 1;
     for i=1:bus
       if genvec(i) ~= 1
-          if genvec(i) == wbus1
+          if i == wbus1
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf1+windup1];
-          elseif genvec(i) == wbus2
+          elseif i == wbus2
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
-          elseif genvec(i) == dbus1
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-drupA];%note
+          elseif i == dbus1
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-sum(drupA)];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end
