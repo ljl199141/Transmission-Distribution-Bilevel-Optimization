@@ -2,15 +2,11 @@
     clear all;
     close all;
 %% DISCO1 System Parameters
-    nt = 24;
+    nt = 12;
     mpc1 = case4gs;  
     [dbusA,~] = size(mpc1.bus);
-%     sampleL=[120.6 115.8 114.8 112.6 114.0 113.4 117.1 126.3 130.7 132.5 135.6 134.8 136.5 137.7 137.1 138.0 136.3 133.3 131.7 129.3 128.2 127.4 125.6 124.2];
-%     sf=sampleL(:,1:nt)./mean(sampleL(:,1:nt));
-%     sf=repmat(sf,dbusA,1);
     mpc1.bus(1,3) = 0;
     loadsA=repmat(mpc1.bus(:,3),1,nt); 
-%     loadsA=loadsA.*sf;
     GSF1 = makePTDF(mpc1.baseMVA, mpc1.bus, mpc1.branch, dbusA);
     PAup = repmat(mpc1.branch(:,6),1,nt); 
     [lineNum,~] = size(GSF1);
@@ -32,15 +28,12 @@
     drdnA = sdpvar(dbusA,nt,'full');
     drA1 = 1;
     drA2 = 1;
-    drscale = 0.5;
-    cimA=7*ones(nt,1)';
+    drscale = 0.3;
+    cimA=14*ones(nt,1)';
     drpA=cimA;
-    PinjDS=sdpvar(dbusA,nt,'full'); % bus nodal matrix with forecast wind   , 0<=drupA,drupA<=drscale*pdA1, 0<=drdnA,drdnA<=drscale*pdA1
+    PinjDS=sdpvar(dbusA,nt,'full'); % bus nodal matrix with forecast wind   
 %% DISCO1 Constraint
-    dgA=0;
-    drupA=0;
-    drdnA=0;
-    CDA = [ PAdn<=PA,PA<=PAup, pdA1dn<=pdA1, pdA1<=pdA1up];
+    CDA = [ PAdn<=PA,PA<=PAup, pdA1dn<=pdA1, pdA1<=pdA1up, 0<=drupA,drupA<=drscale*pdA1, 0<=drdnA,drdnA<=drscale*pdA1];
 
     mu1A = sdpvar(dbusA,nt,'full'); 
     mu2A = sdpvar(lineNum,nt,'full'); 
@@ -72,28 +65,28 @@
     %    DC = [DC,l6A.*(pdA1-pdA1up) == 0];
     bigM = [bigM, l6A<=m1A*b6A, -pdA1+pdA1up<=m1A*(1-b6A)];
 
-%     DF = [l3A>=0,l4A>=0,l5A>=0,l6A>=0];
-%     l7A = sdpvar(dbusA,nt,'full'); 
-%     b7A = binvar(dbusA,nt,'full'); 
-%     %    DC = [DC,l7A.*(drupA) == 0];
-%     bigM = [bigM, l7A<=m1A*b7A, drupA<=m1A*(1-b7A)];
+    DF = [l3A>=0,l4A>=0,l5A>=0,l6A>=0];
+    l7A = sdpvar(dbusA,nt,'full'); 
+    b7A = binvar(dbusA,nt,'full'); 
+    %    DC = [DC,l7A.*(drupA) == 0];
+    bigM = [bigM, l7A<=m1A*b7A, drupA<=m1A*(1-b7A)];
+
+    l8A = sdpvar(dbusA,nt,'full');  
+    b8A = binvar(dbusA,nt,'full');
+    %    DC = [DC,l8A.*(drupA-drscale*pdA1) == 0];
+    bigM = [bigM, l8A<=m1A*b8A, -drupA+drscale*pdA1<=m1A*(1-b8A)];
+
+    l9A = sdpvar(dbusA,nt,'full'); 
+    b9A = binvar(dbusA,nt,'full'); 
+    %    DC = [DC,l9A.*(drdnA) == 0];
+    bigM = [bigM, l9A<=m1A*b9A, drdnA<=m1A*(1-b9A)];
+
+    l10A = sdpvar(dbusA,nt,'full');  
+    b10A = binvar(dbusA,nt,'full');
+    %    DC = [DC,l10A.*(drdnA-drscale*pdA1) == 0];
+    bigM = [bigM, l10A<=m1A*b10A, -drdnA+drscale*pdA1<=m1A*(1-b10A)];
 % 
-%     l8A = sdpvar(dbusA,nt,'full');  
-%     b8A = binvar(dbusA,nt,'full');
-%     %    DC = [DC,l8A.*(drupA-drscale*pdA1) == 0];
-%     bigM = [bigM, l8A<=m1A*b8A, -drupA+drscale*pdA1<=m1A*(1-b8A)];
-% 
-%     l9A = sdpvar(dbusA,nt,'full'); 
-%     b9A = binvar(dbusA,nt,'full'); 
-%     %    DC = [DC,l9A.*(drdnA) == 0];
-%     bigM = [bigM, l9A<=m1A*b9A, drdnA<=m1A*(1-b9A)];
-% 
-%     l10A = sdpvar(dbusA,nt,'full');  
-%     b10A = binvar(dbusA,nt,'full');
-%     %    DC = [DC,l10A.*(drdnA-drscale*pdA1) == 0];
-%     bigM = [bigM, l10A<=m1A*b10A, -drdnA+drscale*pdA1<=m1A*(1-b10A)];
-% 
-    DF = [l3A>=0,l4A>=0,l5A>=0,l6A>=0]; %,l7A>=0,l8A>=0,l9A>=0,l10A>=0
+    DF = [l3A>=0,l4A>=0,l5A>=0,l6A>=0,l7A>=0,l8A>=0,l9A>=0,l10A>=0]; %
     
     for i=1:dbusA
       if i==1
@@ -106,11 +99,10 @@
     CDA = [CDA,PA(1,:)+PA(2,:) == sum(pdA + pdA1)];
     
     for i = 1:dbusA
-       ST = [ST,2*CpdA1*pdA1(i,:)-2*CpdA1*pdA1up(i,:)+mu1A(i,:)-mu3A+l6A(i,:)-l5A(i,:) == 0]; 
-%        ST = [ST,2*CpdA1*pdA1(i,:)-2*CpdA1*pdA1up(i,:)+mu1A(i,:)-mu3A+l6A(i,:)-l5A(i,:)-drscale*l8A(i,:)-drscale*l10A(i,:) == 0]; 
+       ST = [ST,2*CpdA1*pdA1(i,:)-2*CpdA1*pdA1up(i,:)+mu1A(i,:)-mu3A+l6A(i,:)-l5A(i,:)-drscale*l8A(i,:)-drscale*l10A(i,:) == 0]; 
     end %pdA1
 
-%     ST = [ST,2*drA2*drupA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l8A-l7A == 0,2*drA2*drdnA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l10A-l9A == 0];%drup,drdn
+    ST = [ST,2*drA2*drupA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l8A-l7A == 0,2*drA2*drdnA+(drA1)*ones(dbusA,nt)-repmat(drpA,dbusA,1)+l10A-l9A == 0];%drup,drdn
 
     for i = 1:lineNum
        if i == 1
@@ -121,37 +113,18 @@
           ST = [ST,-mu2A(i,:)+l4A(i,:)-l3A(i,:) == 0];
        end
     end %PA
-%     rng(2);
 
     ST = [ST,mu1A+GSF1'*mu2A == 0];%PinjDS  
     
-    dual1 = -sum(sum(pdA1.*pdA1)*CpdA1)+sum(sum(pdA.*mu1A)+sum(l3A*PAdn-l4A.*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up))+sum(sum(pdA1up.*pdA1up))*CpdA1
-    OD1 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 + sum((PA(1,:)+PA(2,:)).*cimA) %- sum(sum(pdA1up.*pdA1up))*CpdA1
-%     dual1 = - sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2-sum(sum(pdA1.*pdA1)*CpdA1)+...
-%     sum(sum(pdA.*mu1A)+sum(l3A*PAdn-l4A.*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up))+sum(sum(pdA1up.*pdA1up))*CpdA1
-%     OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +...
-%     sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -sum(drpA.*sum(drupA+drdnA))+ sum((PA(1,:)+PA(2,:)).*cimA)
+    dual1 = - sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2-sum(sum(pdA1.*pdA1)*CpdA1)+...
+    sum(sum(pdA.*mu1A)+sum(l3A*PAdn-l4A.*PAup)+sum(l5A.*pdA1dn-l6A.*pdA1up))+sum(sum(pdA1up.*pdA1up))*CpdA1
+    OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 +...
+    sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -sum(drpA.*sum(drupA+drdnA))+ sum((PA(1,:)+PA(2,:)).*cimA)
+
     optimize([CDA],OD1)
     value(OD1)
-    optimize([CDA,ST,bigM,DF],0)
+    optimize([CDA,ST,bigM,DF],OD1)
     value(OD1)
     value(dual1)
+
     
-%     for i = 1:36
-%         if i == 1
-%             l3A = dual(CDA(i));
-%         elseif i == 2
-%             l4A = dual(CDA(i));
-%         elseif i == 3
-%             l5A = dual(CDA(i)); 
-%         elseif i == 4
-%             l6A = dual(CDA(i));   
-%         elseif i == 35
-%             mu2A = dual(CDA(i)); 
-%         elseif i == 36
-%             mu3A = dual(CDA(i));  
-%         else
-%             mu1A = dual(CDA(i));
-%         end
-%         end
-            
