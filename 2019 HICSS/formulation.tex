@@ -51,7 +51,7 @@ Eqn (\ref{eqn:dtpg}) bounds the generator generation within its capacities. Eqn 
 
 \textbf{\emph{Power balance constraint:} }
 \begin{align}
-\sum_{g=1}^{G} p_{g,t} + \mathbf{1}_{1\times N_b}*L_{t} + W^f = p^{im}_t-p^{ex}_t, ,  t\in{1,...,T}\label{eq: sec5} 
+\sum_{g=1}^{G} p_{g,t} + \mathbf{1}_{1\times N_b}*L_{t} + W^f = p^{im}_t, ,  t\in{1,...,T}\label{eq: sec5} 
 \end{align}
 where $\mathbf{1}_{1\times N_b}$ is a vector of length $N_b$ filled with 1's. The dot product $\mathbf{1}_{1\times N_b}*L_{t}$ gives the total load in the system. Eqn (\ref{eq: sec5}) balances the system power supply and demand. 
 
@@ -75,7 +75,7 @@ The DS considered in this work has a radial network as shown in Fig.~\ref{pf}. T
 
 \begin{align}
 & P_{i+1} = P_i - p_{i+1}\nonumber \\
-& p_{i} =  L^i_{} + l^d_{} - p^d_{i} \nonumber 
+& p_{i} =  L^i_{} + l^d_{} \nonumber 
 \end{align}
 
 $p_{i}$ is the net load at bus i. 
@@ -89,15 +89,14 @@ $p_{i}$ is the net load at bus i.
 
 The DS could only import energy from the transmission system. The load in the DS is served by the DS DG as well as the TS energy import.
 
-
-The goal of the DS optimization problem is to compute the DG schedule $p^d_{g,t}$ , and  energy import $p^{im}_{t}$ schedule, dispatchable load profile $l^d_{t}$, the upward/downward  DR $dr_{t}^{up}$, $dr_{t}^{dn}$ provided by the dispachable load. The lower level optimization variables are denoted by the vector $y_t$, and include:
+The goal of the DS optimization problem is to compute the energy import $p^{im}_{t}$ schedule, dispatchable load profile $l^d_{t}$, the upward/downward DR $dr_{t}^{up}$, $dr_{t}^{dn}$ provided by the dispachable load. The lower level optimization variables are denoted by the vector $y_t$, and include:
 \begin{align*}
-y_t=[&p^d_{i,t}, p^{im}_{t}, dr_{i,t}^{up},dr_{i,t}^{dn},l^d_{i,t}]
+y_t=[&p^{im}_{t}, dr_{i,t}^{up},dr_{i,t}^{dn},l^d_{i,t}]
 \end{align*} 
 
 The objective of the DS optimization is to minimize the DS operation cost including its DG cost,  energy import cost from the TS, and DR cost and maximize its DL utility and DR revenue.
 
-\textbf{\emph{Objective function:} }
+\textbf{\emph{Objective function:}}
 \begin{align*}
 f(\{y_t\}^{T}_{t=1}) =& \sum_{t=1}^{T}\sum_{i=1}^{N^d_b}(C^{d1}_i p^d_{i,t} +C^{d2}_g p^d_{i,t}  p^d_{i,t} +p^{im}_{t}c^{im}_{t}\\
 + &C^{dr1} (dr^{up}_{i,t} + dr^{dn}_{i,t} ) \\
@@ -108,11 +107,11 @@ f(\{y_t\}^{T}_{t=1}) =& \sum_{t=1}^{T}\sum_{i=1}^{N^d_b}(C^{d1}_i p^d_{i,t} +C^{
 
 The constraints for the DS are given below. The $\lambda$ and $\mu$ variables next to the constraints are the dual variables associated with the corresponding inequality and equality constraints.
 
-\textbf{\emph{DG constraints:} }
-\begin{align}
-&\underline P^d_{i}\leq p^d_{i}\leq  \overline P^d_{i}\label{genlim}, \lambda_{1,i,t},\lambda_{2,i,t},t\in{1,...,T} ,i\in{1,...,N_b^d} 
-\end{align}
-Eq (\ref{genlim}) limits the generator's output within the upper and lower bound.\\
+%\textbf{\emph{DG constraints:} }
+%\begin{align}
+%&\underline P^d_{i}\leq p^d_{i}\leq  \overline P^d_{i}\label{genlim}, \lambda_{1,i,t},\lambda_{2,i,t},t\in{1,...,T} ,i\in{1,...,N_b^d} 
+%\end{align}
+%Eq (\ref{genlim}) limits the generator's output within the upper and lower bound.\\
 
 \textbf{\emph{Power flow constraints:} }
 \begin{align}

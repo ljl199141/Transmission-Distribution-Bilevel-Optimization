@@ -230,14 +230,6 @@
     EP=[sum(pg)-sum(loads)+wf-PA(1,:)>=0];   %note
 %% DISCO1 Constraints
     CDA = [ pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
-%     CDA = [CDA,PAdn<=PA<=PAup];
-%    for i = 1:dbusA-1
-%        if i ~= dbusA-1
-%            CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:)];
-%        else
-%            CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:) + dgA];
-%        end
-%    end  
     CDA = [CDA,PA(1,:) >= sum(pdA + pdA1)]; 
 %% Transmission Objective
     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA))*wc+sum(-winddown-sum(rgup)-sum(drdnA))*lc;%note

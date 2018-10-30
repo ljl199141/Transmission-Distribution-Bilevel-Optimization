@@ -114,6 +114,12 @@
 		\nompageref{2}
 \item [{DG}]\begingroup distributed generation\nomeqref {0}
 		\nompageref{2}
+\item [{DISCO}]\begingroup distribution company\nomeqref {0}
+		\nompageref{2}
+\item [{GENCO}]\begingroup generation company\nomeqref {0}
+		\nompageref{2}
+\item [{UC}]\begingroup unit commitment\nomeqref {0}
+		\nompageref{2}
 
 
 

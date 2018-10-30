@@ -12,6 +12,35 @@ Specifically, given a sufficiently large positive value $M_i$ and binary value $
 
 For a detailed treatment of the Big-M method, please refer to \cite{winston2003introduction}.
 
+\subsection{Traditional UC Problem}
+The formulation of the traditional UC problem adopted by the ISOs is based on the UC formulation in \cite{papavasiliou2013multiarea}. The optimization variables are the sum of the optimization variables from the two levels of the bilevel problem without the energy import price $c^{im}_t$ and DR price $p^{dr}_t$. 
+
+\begin{align*}
+x_t=[&w_{g,t}, p_{g,t}, r_{g,t}^{up}, r_{g,t}^{dn}, p^{dr}_{t}, c^{im}_{t}]
+\end{align*}
+
+Similarly, the objective function is the sum of the upper level and lower level bilevel optimization objective function without the DR and energy import payment terms.
+
+\textbf{\emph{Objective function:}}
+\begin{align*}
+F(\{x_t\}^{T}_{t=1}) =& \sum_{t=1}^{T}\sum_{g=1}^{G}(C^c_{g,t} w_{g,t}+C_{g,t} p_{g,t}+C^r_{g}(r_{g,t}^{up}+r_{g,t}^{dn}))\\
++ &\sum_{t=1}^{T}\sum_{i=1}^{N^d_b}(C^{d1}_i p^d_{i,t} +C^{d2}_g p^d_{i,t}  p^d_{i,t} \\
++ &C^{dr1} (dr^{up}_{i,t} + dr^{dn}_{i,t} ) \\
++ &C^{dr2} (dr^{up}_{i,t}dr^{up}_{i,t} + dr^{dn}_{i,t}dr^{dn}_{i,t}  ) \\
++ &C^{d}(\overline{P}^d_{i}-p^d_{i,t})(\overline{P}^d_{i}-p^d_{i,t}))
+\end{align*}
+
+The constraints of the traditional approach with DS network constraints are the same as the ones used in the bilevel optimization approach. The formulation is as below:
+
+\begin{subequations}
+\begin{align}
+\text{min}_{\{x_t\}^{T}_{t=1}} & F\left(\{x_t\}^{T}_{t=1}\right)\nonumber\\
+\text{s.t.}  & (2) - (15)\nonumber
+\end{align}
+\end{subequations}
+
+If the DS power flow constraints namely Eqn. (10) \& (11) are taken out of the constraint set, the problem becomes the tradition UC without DS network constraints version.
+
 %\subsection{Mccormick Envelope}
 %For a toy optimization problem of the following format:\\
 %\begin{align}

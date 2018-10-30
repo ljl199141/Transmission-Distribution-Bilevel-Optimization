@@ -1,12 +1,19 @@
 %!TEX root = HICSS51.tex
 In this section, the transmission model described in Section~\ref{sec:Model} is applied to the IEEE 30-bus system, shown in Fig.
 \ref{fig:wee}. Interested readers are referred to \cite{zimmerman2009matpower} for
-detailed parameters of the TS. The parameters of the 15 MW DS with 50\% DL and a DR scale factor of 30\% is listed in the appendix.  A wind farm is positioned at bus 8 in the TS to provide renewable generation. A DS is also connected at bus 8 to provide DR to offset the renewable forecast errors.
+detailed parameters of the TS. The parameters of a 6-bus 18 MW DS are given in the appendix. The schematic of the DS is given in Fig. \ref{dsplot}. Bus 8 of the TS hosts a wind farm that provides renewable generation. A DS is also connected at bus 8 which could provide DR to offset the renewable forecast errors. 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.4]{IEEE_30bus.png}
 \caption{IEEE 30 Bus System}
 \label{fig:wee}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.3]{dsplot.png}
+\caption{6-bus Distribution System}
+\label{dsplot}
 \end{figure}
 
 The wind data for the wind farms in the TS are selected from the
@@ -19,8 +26,7 @@ trajectory of the group was selected as the wind forecast,
 and the remaining were used to estimate the distribution of
 forecast errors, as described in \cite{anderson2011wind}. From the forecast error
 distribution, 10000 scenarios are used to generate a robust
-wind error scenario set. 
-
+wind error scenario set. \\
 %For the MG import price, the locational marginal price for each buse in the TS without the MG is precomputed for a wide range of loading conditions. Then a first order equation is fitted between the price and the import quantity. This way the import price is approximated as a linear function of the import quantity as below:
 %\begin{subequations}
 %\begin{align}
@@ -29,72 +35,106 @@ wind error scenario set.
 %\end{subequations}                                                            
 %where $a$ and $b$ are two constants representing the slope and intercept of the pricing equation. The method enables a dynamic pricing scheme which accounts for varying system loading conditions and at the same time preserves the convexity of the problem. The export price is defined as 90\% of the import price at each quantity to avoid the market flaw of buying energy and selling back to make money. This pricing scheme might not be the best pricing scheme. The optimal pricing scheme is out of the focus and scope of the work.
 
-The objective of this work is to analyze different factors that affect the WP in the TS and the operational cost of the two systems in this co-optimization framework as well as the standalone framework.
+The objective of this work is to compare and contrast the bilevel optimization approach and the traditional approach adopted by the ISO in various aspects. Traditionally, the ISO solves a single optimization problem for the whole system including the transmission, generation and distribution. The objective functions contains the cost  and utility functions functions of all the market participants.  Two scenarios are considered for the traditional approach. One considers the distribution network constraints while the other one does not. The energy and DR costs under the traditional approach are both the locational marginal price according to the practice of New York Independent System Operator \ref{NYISO}. To make a fair comparison, the DR price and energy price variables are also set to the same value under the bilevel optimization framework. The formulation of the traditional UC problem is given in the appendix.\\
 
-The definition of WP is based on the wind power capacity penetration defined by the European Wind Energy Association \cite{european2012wind}. It is the ratio of the installed wind capacity divided by the peak system load.
+First the total system costs of the bilevel optimization approach and the two traditional approach variations are compared in fig. \ref{1dstotal}. The total cost under the bilevel approach is a posterior cost which is the sum of the upper level and lower level optimal objective function value. The total cost of the traditional approach is just the optimal objective function value. As fig. \ref{1dstotal} illustrates, the total cost is the highest under the bilevel optimization approach and is the lowest under the traditional approach without DS network constraints. Since the total cost is not directly optimized under the bilevel approach, its cost is the highest compared to the other two. As the solution of the DS without network constraints might become infeasible with the network constraints, which is what happens in this case. The cost of the DS without network constraints is a lower bound for that of the DS with network constraints. In this case, the cost of the traditional approach without network constraints is lower. 
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{1dstotal.png}
+\caption{Total System Cost Comparison}
+\label{1dstotal}
+\end{figure}
 
-\subsubsection{Base Case: no DR}
-For benchmarking purpose, a base case study is carried out first. The DL level is 50\%. The DR function in the DS is disabled. The results are given in Table \ref{transbus}.
+The MG costs for the three scenarios are compared in fig. \ref{1dsmg}. In contrast to the previous case, the MG cost under the bilevel approach is directly optimized in the lower level problem, therefore its cost is the lowest. Whereas the MG cost under the traditional approach is a posterior cost, the two traditional approach costs are higher. Once again the MG cost of the traditional method without DS network constraints is lower due to fewer constraints.
 
-%The To generate some benchmarks, a wind farm is positioned at different buses in the TS with no MG. The maximum WP in each case is recorded.
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.4]{1dsmg.png}
+\caption{MG Cost Comparison}
+\label{1dsmg}
+\end{figure}
+
+As it is already shown that the traditional approach without DS network might generate infeasible solutions for the DS, this case is not considered for the subsequent studies. In addition to the cost, the strategies for offsetting wind forecast errors and the environmental implications between the two approaches also exhibit interesting results. For the same set of wind scenarios and same amount of wind forecast errors, the generator reserve and DS DR provisions are given in Table. \ref{reserve}. The main difference between the two approaches is the upward DR and downward generator reserve which are used to handle excess wind generation. The bilevel optimization approach tends to provide more downward generator reserve or generate less power to accommodate more wind generation. On the contrary, the traditional approach tends to provide more upward DR or use more load in this case. Therefore, the bilevel approach has less carbon emission and is thus more environmentally friendly handling excess wind generation. The reason behind that is the lower DR price for the bilevel approach, which corresponds to a smaller quantity on the DR supply curve accordingly to basic economics. 
 
 \begin{table}[H]
 \centering
-\begin{tabular}{ |c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c|c| } 
  \hline
- Max WP & TS Cost & DS Cost \\ 
+& Drup (MW) & Drdn (MW) & Reserve up (MW) & Reserve dn (MW)&DR price (\$/MW)\\
  \hline
-29\% & 8798 & 1697 \\ 
+Traditional with Network & 102 & 63 & 5& 135 & 2.66 \\ 
  \hline
-\end{tabular}
-\caption{ Base Case Results}
- \label{transbus}
-\end{table}
-
-\subsubsection{Case 1: different DL levels with DR}
-In this case, the DR function of the DS is enabled and maintained at a level of 30\%. The WP and costs of the two systems at different DL levels are recorded in Table \ref{transbuse}.
-
-\begin{table}[H]
-\centering
-\begin{tabular}{ |c|c|c|c| } 
- \hline
-DL Level& Max WP & TS Cost & DS Cost \\ 
- \hline
-25\% & 30\% & 8568 & 2720 \\ 
- \hline
-50\% & 31\% & 8771 & 1660 \\ 
- \hline
-75\% & 33\% & 9110 & 180 \\ 
+Bilevel & 63 & 63 & 5& 96 & 3.52 \\ 
  \hline
 \end{tabular}
 \caption{Results at Different DL Levels}
- \label{transbuse}
+ \label{reserve}
 \end{table}
 
-From Table \ref{transbuse}, the WP increases with an increasing DL level, however the increase in WP is not significant. That is because the DS size is relatively very small and the amount of DR it could provide is very limited. Looking at the system costs, the TS cost increases due to the increased requirement for reserves to compensate for the increased wind uncertainty. The DS cost decreases significantly with the increased DL level as it has more DR capacity with more DL to make more revenue. In addition, the flexibility with more DL could enable more load curtailing at expensive period ,which also reduces the system cost. Compared to the base case, the DR generates considerable cost savings for both systems as the base TS case cost at 29\% WP is even greater than the 31\% WP in this case. Moreover, the DR also reduces the DS cost for the same setting compared to the base case.
-
-\subsubsection{Case 2: different DR levels}
-In this case, the DR function of the DS is enabled and varied at different levels. The DL level is maintained at 50\%. The WP and costs of the two systems at different DL levels are recorded in Table \ref{transbusf}.
-
-\begin{table}[H]
-\centering
-\begin{tabular}{ |c|c|c|c| } 
- \hline
-DR Level & Max WP & TS Cost & DS Cost \\ 
- \hline
-15\% & 30\% & 8795 & 1706 \\ 
- \hline
-30\% & 31\% & 8821 & 1660 \\ 
- \hline
-45\% & 33\% & 8862 & 1644 \\ 
- \hline
-\end{tabular}
-\caption{Results at Different DL Levels}
- \label{transbusf}
-\end{table}
-
-From Table \ref{transbusf}, the WP increases with an increasing DR level, once again the increase in WP is not significant. The reason is the same as before. Looking at the system costs, the TS cost increases due to the increased requirement for reserves to compensate for the increased wind uncertainty. One interesting thing to note is that the increase in TS cost in this case is smaller than the previous case. That is because in the previous case the amount of DR does not necessarily increase for all periods with an increased amount of DL as the DL setpoint could be very low for some periods and thus have very limited DR for those periods, so those periods still incur high cost increase with a higher WP. In the contrary, an increasing DR level at a constant DL guarantees more DR in this case and could more effectively reduce the cost increase in the TS with more wind uncertainty. The DS cost decreases with an increasing DR level but not as significantly as the previous level. That is due to the fact that the DS in the previous case saves money not only from DR but also from load curtailing. 
+%The definition of WP is based on the wind power capacity penetration defined by the European Wind Energy Association \cite{european2012wind}. It is the ratio of the installed wind capacity divided by the peak system load.
+%
+%\subsubsection{Base Case: no DR}
+%For benchmarking purpose, a base case study is carried out first. The DL level is 50\%. The DR function in the DS is disabled. The results are given in Table \ref{transbus}.
+%
+%%The To generate some benchmarks, a wind farm is positioned at different buses in the TS with no MG. The maximum WP in each case is recorded.
+%
+%\begin{table}[H]
+%\centering
+%\begin{tabular}{ |c|c|c| } 
+% \hline
+% Max WP & TS Cost & DS Cost \\ 
+% \hline
+%29\% & 8798 & 1697 \\ 
+% \hline
+%\end{tabular}
+%\caption{ Base Case Results}
+% \label{transbus}
+%\end{table}
+%
+%\subsubsection{Case 1: different DL levels with DR}
+%In this case, the DR function of the DS is enabled and maintained at a level of 30\%. The WP and costs of the two systems at different DL levels are recorded in Table \ref{transbuse}.
+%
+%\begin{table}[H]
+%\centering
+%\begin{tabular}{ |c|c|c|c| } 
+% \hline
+%DL Level& Max WP & TS Cost & DS Cost \\ 
+% \hline
+%25\% & 30\% & 8568 & 2720 \\ 
+% \hline
+%50\% & 31\% & 8771 & 1660 \\ 
+% \hline
+%75\% & 33\% & 9110 & 180 \\ 
+% \hline
+%\end{tabular}
+%\caption{Results at Different DL Levels}
+% \label{transbuse}
+%\end{table}
+%
+%From Table \ref{transbuse}, the WP increases with an increasing DL level, however the increase in WP is not significant. That is because the DS size is relatively very small and the amount of DR it could provide is very limited. Looking at the system costs, the TS cost increases due to the increased requirement for reserves to compensate for the increased wind uncertainty. The DS cost decreases significantly with the increased DL level as it has more DR capacity with more DL to make more revenue. In addition, the flexibility with more DL could enable more load curtailing at expensive period ,which also reduces the system cost. Compared to the base case, the DR generates considerable cost savings for both systems as the base TS case cost at 29\% WP is even greater than the 31\% WP in this case. Moreover, the DR also reduces the DS cost for the same setting compared to the base case.
+%
+%\subsubsection{Case 2: different DR levels}
+%In this case, the DR function of the DS is enabled and varied at different levels. The DL level is maintained at 50\%. The WP and costs of the two systems at different DL levels are recorded in Table \ref{transbusf}.
+%
+%\begin{table}[H]
+%\centering
+%\begin{tabular}{ |c|c|c|c| } 
+% \hline
+%DR Level & Max WP & TS Cost & DS Cost \\ 
+% \hline
+%15\% & 30\% & 8795 & 1706 \\ 
+% \hline
+%30\% & 31\% & 8821 & 1660 \\ 
+% \hline
+%45\% & 33\% & 8862 & 1644 \\ 
+% \hline
+%\end{tabular}
+%\caption{Results at Different DL Levels}
+% \label{transbusf}
+%\end{table}
+%
+%From Table \ref{transbusf}, the WP increases with an increasing DR level, once again the increase in WP is not significant. The reason is the same as before. Looking at the system costs, the TS cost increases due to the increased requirement for reserves to compensate for the increased wind uncertainty. One interesting thing to note is that the increase in TS cost in this case is smaller than the previous case. That is because in the previous case the amount of DR does not necessarily increase for all periods with an increased amount of DL as the DL setpoint could be very low for some periods and thus have very limited DR for those periods, so those periods still incur high cost increase with a higher WP. In the contrary, an increasing DR level at a constant DL guarantees more DR in this case and could more effectively reduce the cost increase in the TS with more wind uncertainty. The DS cost decreases with an increasing DR level but not as significantly as the previous level. That is due to the fact that the DS in the previous case saves money not only from DR but also from load curtailing. 
 
 %\begin{table}[H]
 %\centering

@@ -28,9 +28,9 @@
     Conoff=2*ones(1,ng);    
 %% DISCO1 System Parameters
    dbusA = 6;
-   total = [0, 4, 5, 0, 4, 2];
+   total = [0, 4, 5, 3, 4, 2];
    total = repmat(total',1,nt);
-   dssize = 1;
+   dssize = 0;
    cd2A = 0.02;
    cd1A = 5;  
    PA = sdpvar(dbusA,nt,'full');
@@ -39,7 +39,7 @@
    pdA1dn = 0.00001*total*dssize;
    pdA = 0*(total-pdA1up);
    CpdA1 = 3;
-   PAup = 1*repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
+   PAup = repmat(0.8*[14.0000   8.2500    4.5000    6.5000    3.7500    0.0000]',1,24);
    PAdn = 0;
    dgA = sdpvar(1,nt,'full');
    dgAup = 0;
@@ -51,7 +51,7 @@
    drscale = 0.5;
  %% DISCO2 System Parameters
    dbusB = 6;
-   totalB = [0, 4, 5, 0, 4, 2];
+   totalB = [0, 4, 5, 3, 4, 2];
    totalB = repmat(totalB',1,nt);
    dssizeB = 1;
    cd2B = 0.02;
@@ -62,7 +62,7 @@
    pdB1dn = 0.00001*totalB*dssizeB;
    pdB = 0*(totalB-pdB1up);
    CpdB1 = 3;
-   PBup = 1*repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
+   PBup = repmat(0.8*[14.0000   8.2500    4.5000    6.5000    3.7500    0.0000]',1,24);
    PBdn = 0;
    dgB = sdpvar(1,nt,'full');
    dgBup = 0;
@@ -74,7 +74,7 @@
    drscaleB = 0.5;
 %% EISCO3 System Parameters
    dbusE = 6;
-   totalE = [0, 4, 5, 0, 4, 2];
+   totalE = [0, 4, 5, 3, 4, 2];
    totalE = repmat(totalE',1,nt);
    dssizeE = 1;
    cd2E = 0.02;
@@ -85,7 +85,7 @@
    pdE1dn = 0.00001*totalE*dssizeE;
    pdE = 0*(totalE-pdE1up);
    CpdE1 = 3;
-   PEup = 1*repmat([14.0000   8.2500    4.5000    3.5000    0.7500    0.0000]',1,24); %[14.0000   10.2500    5.5000    5.5000    1.7500    0.0000]
+   PEup = repmat(0.8*[14.0000   8.2500    4.5000    6.5000    3.7500    0.0000]',1,24);
    PEdn = 0;
    dgE = sdpvar(1,nt,'full');
    dgEup = 0;
@@ -212,11 +212,11 @@
           elseif i == wbus2
               CO = [CO,Pinj(i,:)==-loads(i,:)+wf2];
           elseif i == dbus1
-              CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)];%note
+              CO = [CO,Pinj(i,:)==-loads(i,:)-PA(1,:)-PA(2,:)];%note
           elseif i == dbus2
-              CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)];%note
+              CO = [CO,Pinj(i,:)==-loads(i,:)-PB(1,:)-PB(2,:)];%note
           elseif i == dbus3
-              CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)];%note
+              CO = [CO,Pinj(i,:)==-loads(i,:)-PE(1,:)-PE(2,:)];%note
           else
               CO=[CO,Pinj(i,:)==-loads(i,:)];
           end
@@ -236,11 +236,11 @@
           elseif i == wbus2
               CO = [CO,Pinj1(i,:)==-loads(i,:)+wf2+winddown2];
           elseif i == dbus1
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)+sum(drdnA)];%note
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PA(1,:)-PA(2,:)+sum(drdnA)];%note
           elseif i == dbus2
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)+sum(drdnB)];%note
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PB(1,:)-PB(2,:)+sum(drdnB)];%note
           elseif i == dbus3
-              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)+sum(drdnE)];%note
+              CO = [CO,Pinj1(i,:)==-loads(i,:)-PE(1,:)-PE(2,:)+sum(drdnE)];%note
           else
               CO=[CO,Pinj1(i,:)==-loads(i,:)];
           end
@@ -260,11 +260,11 @@
           elseif i == wbus2
               CO = [CO,Pinj2(i,:)==-loads(i,:)+wf2+windup2];
           elseif i == dbus1
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-sum(drupA)];%note
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PA(1,:)-PA(2,:)-sum(drupA)];%note
           elseif i == dbus2
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-sum(drupB)];%note
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PB(1,:)-PB(2,:)-sum(drupB)];%note
           elseif i == dbus3
-              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-sum(drupE)];%note
+              CO = [CO,Pinj2(i,:)==-loads(i,:)-PE(1,:)-PE(2,:)-sum(drupE)];%note
           else
               CO=[CO,Pinj2(i,:)==-loads(i,:)];
           end
@@ -287,37 +287,55 @@
 
 %     EP=[sum(pg)-sum(loads)+wf-PA(1,:)-PB(1,:)-PE(1,:)>=0];   %note
 
-    EP = [sum(pg)-sum(loads)+wf-PE(1,:)-PB(1,:)-PA(1,:)>=0];   %note
+    EP = [sum(pg)-sum(loads)+wf-PE(1,:)-PE(2,:)-PB(1,:)-PB(2,:)-PA(1,:)-PA(2,:)>=0];   %note
 %% DISCO1 Constraints
    CDA = [PAdn<=PA<=PAup, pdA1dn<=pdA1<=pdA1up, 0<=drupA<=drscale*pdA1, 0<=drdnA<=drscale*pdA1];
    for i = 1:dbusA-1
-       if i ~= dbusA-1
-           CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:)];
-       else
-           CDA = [CDA, PA(i+1,:) == PA(i,:) - pdA(i+1,:) - pdA1(i+1,:) + dgA];
+       if i == 1
+           CDA = [CDA, PA(4,:) == PA(1,:) - pdA(2,:) - pdA1(2,:)];
+       elseif i == 2
+           CDA = [CDA, PA(3,:) == PA(2,:) - pdA(5,:) - pdA1(5,:)];
+       elseif i == 3
+           CDA = [CDA, 0 == PA(3,:) - pdA(6,:) - pdA1(6,:)];
+       elseif i == 4
+           CDA = [CDA, PA(5,:) == PA(4,:) - pdA(3,:) - pdA1(3,:)];
+       elseif i == 5
+           CDA = [CDA, 0 == PA(5,:) - pdA(4,:) - pdA1(4,:)];
        end
-   end  
-   CDA = [CDA,PA(1,:) >= sum(pdA + pdA1)]; 
+   end 
+   CDA = [CDA,PA(1,:)+PA(2,:) >= sum(pdA + pdA1)]; 
  %% DISCO2 Constraints
-  CDB = [dgBdn<=dgB<=dgBup, PBdn<=PB<=PBup, pdB1dn<=pdB1<=pdB1up, 0<=drupB<=drscaleB*pdB1, 0<=drdnB<=drscaleB*pdB1];
+   CDB = [PBdn<=PB<=PBup, pdB1dn<=pdB1<=pdB1up, 0<=drupB<=drscale*pdB1, 0<=drdnB<=drscale*pdB1];
    for i = 1:dbusB-1
-       if i ~= dbusB-1
-           CDB = [CDB, PB(i+1,:) == PB(i,:) - pdB(i+1,:) - pdB1(i+1,:)];
-       else
-           CDB = [CDB, PB(i+1,:) == PB(i,:) - pdB(i+1,:) - pdB1(i+1,:) + dgB];
+       if i == 1
+           CDB = [CDB, PB(4,:) == PB(1,:) - pdB(2,:) - pdB1(2,:)];
+       elseif i == 2
+           CDB = [CDB, PB(3,:) == PB(2,:) - pdB(5,:) - pdB1(5,:)];
+       elseif i == 3
+           CDB = [CDB, 0 == PB(3,:) - pdB(6,:) - pdB1(6,:)];
+       elseif i == 4
+           CDB = [CDB, PB(5,:) == PB(4,:) - pdB(3,:) - pdB1(3,:)];
+       elseif i == 5
+           CDB = [CDB, 0 == PB(5,:) - pdB(4,:) - pdB1(4,:)];
        end
-   end  
-  CDB = [CDB,PB(1,:) >= sum(pdB + pdB1)]; 
+   end 
+   CDB = [CDB,PB(1,:)+PB(2,:) >= sum(pdB + pdB1)];
  %% DISCO3 Constraints
-  CDE = [dgEdn<=dgE<=dgEup, PEdn<=PE<=PEup, pdE1dn<=pdE1<=pdE1up, 0<=drupE<=drscaleE*pdE1, 0<=drdnE<=drscaleE*pdE1];
+   CDE = [PEdn<=PE<=PEup, pdE1dn<=pdE1<=pdE1up, 0<=drupE<=drscale*pdE1, 0<=drdnE<=drscale*pdE1];
    for i = 1:dbusE-1
-       if i ~= dbusE-1
-           CDE = [CDE, PE(i+1,:) == PE(i,:) - pdE(i+1,:) - pdE1(i+1,:)];
-       else
-           CDE = [CDE, PE(i+1,:) == PE(i,:) - pdE(i+1,:) - pdE1(i+1,:) + dgE];
+       if i == 1
+           CDE = [CDE, PE(4,:) == PE(1,:) - pdE(2,:) - pdE1(2,:)];
+       elseif i == 2
+           CDE = [CDE, PE(3,:) == PE(2,:) - pdE(5,:) - pdE1(5,:)];
+       elseif i == 3
+           CDE = [CDE, 0 == PE(3,:) - pdE(6,:) - pdE1(6,:)];
+       elseif i == 4
+           CDE = [CDE, PE(5,:) == PE(4,:) - pdE(3,:) - pdE1(3,:)];
+       elseif i == 5
+           CDE = [CDE, 0 == PE(5,:) - pdE(4,:) - pdE1(4,:)];
        end
-   end  
-  CDE = [CDE,PE(1,:) >= sum(pdE + pdE1)]; 
+   end 
+   CDE = [CDE,PE(1,:)+PE(2,:) >= sum(pdE + pdE1)];
 %% Transmission Objective
 %     OO = sum(onoff')*Conoff'+sum(pg')*cg1+sum(rgup' + rgdn')*crg+sum(windup-sum(rgdn)-sum(drupA)-sum(drupB)-sum(drupE))*wc+...
 %         sum(-winddown-sum(rgup)-sum(drdnA)-sum(drdnB)-sum(drdnE))*lc;%note
@@ -325,12 +343,12 @@
     sum(-winddown-sum(rgup)-sum(drdnE)-sum(drdnB)-sum(drdnA))*lc;%note
     O1 = sum(pg'.*pg')*cg2;
 
-    O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(sum(pdA1up.*pdA1up))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
-    O3 = sum(sum((pdB1up-pdB1).*(pdB1up-pdB1)))*CpdB1 - sum(sum(pdB1up.*pdB1up))*CpdB1 + sum(sum(drupB'+drdnB'))*drB1 + sum(sum(drupB'.*drupB'+drdnB'.*drdnB'))*drB2
-    O4 = sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 - sum(sum(pdE1up.*pdE1up))*CpdE1 + sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2
+    O2 = sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 + sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2
+    O3 = sum(sum((pdB1up-pdB1).*(pdB1up-pdB1)))*CpdB1 + sum(sum(drupB'+drdnB'))*drB1 + sum(sum(drupB'.*drupB'+drdnB'.*drdnB'))*drB2
+    O4 = sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 + sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2
 %% Solve Problem
 %    optimize([CDA,CDB,CDE,CO,EP,CP],OO+O1+O2+03+04) % note -10000*scale +O3+O4
-optimize([CDE,CDB,CDA,CO,EP,CP],OO+O1+O4+O3+O2) % note -10000*scale +O3+O4
+   optimize([CDE,CDB,CDA,CO,EP,CP],OO+O1+O4+O3+O2) % note -10000*scale +O3+O4
 %    value(cimA)
 %    value(drpA)
 %    value(dgA)
@@ -341,12 +359,11 @@ optimize([CDE,CDB,CDA,CO,EP,CP],OO+O1+O4+O3+O2) % note -10000*scale +O3+O4
    EnergyPrice = dual(EP)';
    ConPrice = dual(CP);
 %% DISCO1 Objective
-   OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 -...
-         sum(sum(pdA1up.*pdA1up))*CpdA1-sum(drupA+drdnA)*EnergyPrice'+ PA(1,:)*EnergyPrice'
+   OD1 = sum(sum(drupA'+drdnA'))*drA1 + sum(sum(drupA'.*drupA'+drdnA'.*drdnA'))*drA2 + sum(sum((pdA1up-pdA1).*(pdA1up-pdA1)))*CpdA1 - sum(drupA+drdnA)*EnergyPrice'+ (PA(1,:)+ PA(2,:))*EnergyPrice' 
    OD2 = sum(sum(drupB'+drdnB'))*drB1 + sum(sum(drupB'.*drupB'+drdnB'.*drdnB'))*drB2 + sum(sum((pdB1up-pdB1).*(pdB1up-pdB1)))*CpdB1 -...
-         sum(sum(pdB1up.*pdB1up))*CpdB1-sum(drupB+drdnB)*EnergyPrice'+ PB(1,:)*EnergyPrice'
+         sum(drupB+drdnB)*EnergyPrice'+ (PB(1,:)+ PB(2,:))*EnergyPrice'
    OD3 = sum(sum(drupE'+drdnE'))*drE1 + sum(sum(drupE'.*drupE'+drdnE'.*drdnE'))*drE2 + sum(sum((pdE1up-pdE1).*(pdE1up-pdE1)))*CpdE1 -...
-         sum(sum(pdE1up.*pdE1up))*CpdE1-sum(drupE+drdnE)*EnergyPrice'+ PE(1,:)*EnergyPrice' 
+         sum(drupE+drdnE)*EnergyPrice'+ (PE(1,:)+ PE(2,:))*EnergyPrice' 
 %    sum(sum(drupA+drdnA))
 %    sum(PA(1,:))
 %    disp('total windup')
