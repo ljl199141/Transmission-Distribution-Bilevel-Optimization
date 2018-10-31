@@ -17,7 +17,7 @@
     PA = sdpvar(lineNum,nt,'full');
     pdA1 = sdpvar(dbusA,nt,'full');
     pdA1up = 0.01*total*dssize;
-    pdA1dn = 0.00001*total*dssize;
+    pdA1dn = 0.0000*total*dssize;
     pdA = 0*(total-pdA1up);
     CpdA1 = 3;
     PAdn = 0;
